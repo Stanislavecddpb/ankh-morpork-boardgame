@@ -186,7 +186,10 @@ export const AnkhMorporkGame: Game<AMState> = {
 
         // Открывают скрытое или случайное: только на сервере, отмена через них невозможна.
         drawEvent: {
-          move: turnOnly((c) => check(startEvent(apiFor(c)))),
+          move: turnOnly((c) => {
+            if (startEvent(apiFor(c))) return INVALID_MOVE;
+            if (c.G.lastEvent) c.G.eventShow = { seq: c.G.eventShow.seq + 1, diceSeq: c.G.dice.seq };
+          }),
           client: false,
           undoable: false,
         },

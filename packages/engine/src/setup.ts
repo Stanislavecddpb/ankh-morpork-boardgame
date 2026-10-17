@@ -65,6 +65,7 @@ export function setupGame(numPlayers: number, shuffle: Shuffle): AMState {
     prompt: null,
     offers: [],
     dice: { seq: 0, values: [] },
+    eventShow: { seq: 0, diceSeq: -1 },
     lastPlayed: null,
     noUndo: false,
     peek: null,

@@ -18,7 +18,7 @@ export interface DiceShow {
  * Анимация бросков: когда G.dice.seq меняется, по очереди проигрываем каждое значение
  * (кручение с мельканием чисел, затем остановка и подсветка района). Старые броски при входе не показываем.
  */
-export function useDiceShow(dice: AMState['dice'] | undefined): [DiceShow | null, () => void] {
+export function useDiceShow(dice: AMState['dice'] | undefined, mutedSeq = -1): [DiceShow | null, () => void] {
   const [show, setShow] = useState<DiceShow | null>(null);
   const seen = useRef<number | null>(null);
   const timers = useRef<number[]>([]);
@@ -29,6 +29,8 @@ export function useDiceShow(dice: AMState['dice'] | undefined): [DiceShow | null
     if (seen.current === null) { seen.current = dice.seq; return; }
     if (dice.seq === seen.current || dice.values.length === 0) return;
     seen.current = dice.seq;
+    // Броски случайного события показывает окно события.
+    if (dice.seq === mutedSeq) return;
     clear();
     const values = [...dice.values];
     let t = 0;
@@ -51,7 +53,7 @@ export function useDiceShow(dice: AMState['dice'] | undefined): [DiceShow | null
 }
 
 /** Двенадцатигранник «в лоб»: пятиугольная грань в центре и пять соседних по кругу. */
-function D12({ face, spinning }: { face: number; spinning: boolean }) {
+export function D12({ face, spinning }: { face: number; spinning: boolean }) {
   const pt = (r: number, i: number, off = -90) => {
     const a = ((off + i * 72) * Math.PI) / 180;
     return [50 + r * Math.cos(a), 50 + r * Math.sin(a)];

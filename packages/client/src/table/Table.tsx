@@ -20,6 +20,7 @@ import { DistrictsPanel } from './DistrictsPanel';
 import { PlayerInfo } from './PlayerInfo';
 import { Memo } from './Memo';
 import { DiceOverlay, useDiceShow } from './Dice';
+import { EventShow } from './EventShow';
 
 interface MatchPlayer { id: number; name?: string }
 
@@ -88,7 +89,8 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   const [menuArea, setMenuArea] = useState<AreaId | null>(null);
   const [handOpen, setHandOpen] = useState(false);
   const [infoFor, setInfoFor] = useState<string | null>(null);
-  const [dice, skipDice] = useDiceShow(G.dice);
+  const [dice, skipDice] = useDiceShow(G.dice, G.eventShow?.diceSeq);
+  const [eventArea, setEventArea] = useState<AreaId | null>(null);
 
   const nameOf = (pid: string) =>
     matchData?.find((m) => String(m.id) === pid)?.name || G.players[pid]?.name || `Игрок ${Number(pid) + 1}`;
@@ -168,7 +170,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       <div className="table-board">
         <PromptBar G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />
         <Supply G={G} me={me} manual={myTurn && manualOn} canDrag={canDrag} nameOf={nameOf} />
-        <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} onDropPiece={onDropPiece} rolled={dice?.area ?? null} />
+        <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} onDropPiece={onDropPiece} rolled={eventArea ?? dice?.area ?? null} />
         <DiceOverlay show={dice} onSkip={skipDice} />
         <Decks G={G} personality={mine?.personality ?? null} flipKey={`${ctx.turn}-${me}`} />
         <Hand G={G} me={me} open={handOpen || selectHand} setOpen={setHandOpen}
@@ -226,6 +228,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       <RevealModal G={G} me={me} moves={moves} />
       <PeekModal G={G} me={me} />
       {infoFor && <PlayerInfo G={G} pid={infoFor} nameOf={nameOf} onClose={() => setInfoFor(null)} />}
+      <EventShow G={G} onArea={setEventArea} />
       {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}
     </div>
   );
