@@ -64,7 +64,7 @@ python tools/assets/build_memo.py
 python tools/assets/fix_dimwell.py   # «7а» → «8» у Мраколодца (после build_board и build_cards)
 ```
 
-Разметка районов на поле правится в браузере: `#/dev/areas`.
+Разметка районов на поле правится в браузере: `#/dev/areas`; `python tools/assets/fit_areas.py` подгоняет границы к берегам реки (река ничейная).
 
 ## Проверки в браузере
 
