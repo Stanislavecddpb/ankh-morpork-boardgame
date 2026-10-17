@@ -8,6 +8,7 @@ import { COLORS } from './types';
 import { currentSymbol } from './turn';
 import { assassinationAreas, assassinationTargets, buildableAreas, legalMinionAreas, troubleAreas } from './rules';
 import { AREA_IDS } from './data/areas';
+import { defineEffects, effectFor } from './cards';
 
 const testGame: Game<AMState> = { ...AnkhMorporkGame, playerView: undefined };
 
@@ -42,6 +43,38 @@ describe('лобби', () => {
     expect(ctx.phase).toBe('play');
     expect(G.started).toBe(true);
     expect(G.playsLeft).toBe(1);
+  });
+});
+
+describe('свитки и отмена', () => {
+  it('шаг без скрытого отменяется, шаг со скрытым — нет', () => {
+    const saved = effectFor('drumknott');
+    defineEffects({
+      'drumknott': {
+        start: (api) => ({ step: 'a', kind: 'choice', options: ['x'], labels: { x: 'X' }, text: 't', actor: api.pid }),
+        answer: (api) => { api.lock(); return null; },
+      },
+    });
+    const g: Game<AMState> = {
+      ...testGame,
+      setup: (args) => {
+        const G = AnkhMorporkGame.setup!(args as never);
+        for (const p of Object.values(G.players)) p.hand[0] = 'drumknott';
+        return G;
+      },
+    };
+    const client = started(2, g);
+    client.moves.playCard('drumknott');
+    client.moves.startScroll();
+    expect(client.getState()!.G.prompt).not.toBeNull();
+    client.undo();
+    expect(client.getState()!.G.prompt).toBeNull(); // старт свитка отменён
+    client.moves.startScroll();
+    client.moves.answer('x');
+    expect(client.getState()!.G.play).toBeNull();
+    client.undo();
+    expect(client.getState()!.G.play).toBeNull(); // отменить нельзя
+    defineEffects({ 'drumknott': saved as never });
   });
 });
 

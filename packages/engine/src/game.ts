@@ -1,6 +1,6 @@
 import type { Game } from 'boardgame.io';
 import { ActivePlayers, INVALID_MOVE } from 'boardgame.io/core';
-import type { AMState, AreaId, Target } from './types';
+import type { AMState, AreaId, Choice, Target } from './types';
 import { applySetColor, applySetName, setupGame } from './setup';
 import { drawCards, log, nameOf } from './helpers';
 import {
@@ -10,6 +10,7 @@ import {
 import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, type ManualAction } from './manual';
 import { allPersonalities, deckOutResult, hasWon } from './victory';
 import { playerView } from './view';
+import { answerPrompt, makeApi, startScroll, type Rnd } from './cards';
 
 export const GAME_ID = 'ankh-morpork';
 
@@ -18,6 +19,12 @@ const check = (error: string | null) => (error ? INVALID_MOVE : undefined);
 /** В фазе play активны все (чтобы соперник мог отвечать); ходить может только текущий игрок. */
 const turnOnly = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
   (c: any, ...args: A): any => (c.playerID === c.ctx.currentPlayer ? fn(c, ...args) : INVALID_MOVE);
+
+/** Контекст для эффекта свитка: случайность — через random boardgame.io. */
+function apiFor(c: any) {
+  const rnd: Rnd = { d12: () => c.random.D12(), shuffle: (a) => c.random.Shuffle(a) };
+  return makeApi(c.G, c.playerID, c.ctx.playOrder, rnd);
+}
 
 export const AnkhMorporkGame: Game<AMState> = {
   name: GAME_ID,
@@ -77,6 +84,26 @@ export const AnkhMorporkGame: Game<AMState> = {
         playAnother: turnOnly(({ G, playerID }) => check(doPlayAnother(G, playerID))),
         skipSymbol: turnOnly(({ G, playerID }) => check(skipSymbol(G, playerID))),
         manual: turnOnly(({ G, playerID }, action: ManualAction) => check(applyManual(G, playerID, action))),
+
+        startScroll: {
+          move: turnOnly((c) => {
+            const api = apiFor(c);
+            if (startScroll(api)) return INVALID_MOVE;
+            c.G.noUndo = api.locked;
+          }),
+          client: false,
+          undoable: ({ G }: { G: AMState }) => !G.noUndo,
+        },
+        // Отвечать может и соперник — поэтому без turnOnly; проверка actor внутри answerPrompt.
+        answer: {
+          move: (c: any, choice: Choice): any => {
+            const api = apiFor(c);
+            if (answerPrompt(api, choice)) return INVALID_MOVE;
+            c.G.noUndo = api.locked;
+          },
+          client: false,
+          undoable: ({ G }: { G: AMState }) => !G.noUndo,
+        },
 
         // Открывают скрытое или случайное: только на сервере, отмена через них невозможна.
         drawEvent: {

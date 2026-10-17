@@ -9,3 +9,4 @@ export * from './turn';
 export * from './manual';
 export * from './view';
 export * from './game';
+export * from './cards';
