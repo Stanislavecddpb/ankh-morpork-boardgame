@@ -1,4 +1,5 @@
 import { CARD_BY_ID, EVENT_BY_ID, areaDef, canEndTurn, currentSymbol, type AMState, type CardSymbol } from '@am/engine';
+import { ZoomImg } from './ZoomImg';
 import { cardImg, eventImg } from './assets';
 
 const LABEL: Record<CardSymbol['kind'], string> = {
@@ -20,7 +21,7 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
     <section className="action">
       {G.play && (
         <div className="in-play">
-          <img className="in-play-card" src={cardImg(G.play.cardId)} alt={CARD_BY_ID[G.play.cardId]?.name} />
+          <ZoomImg className="in-play-card" src={cardImg(G.play.cardId)} alt={CARD_BY_ID[G.play.cardId]?.name} />
           <ol className="queue">
             {G.play.queue.map((s, i) => <li key={i} className={i === 0 ? 'now' : ''}>{label(s)}</li>)}
           </ol>
@@ -29,7 +30,7 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
 
       {G.lastEvent && (
         <div className="event">
-          <img src={eventImg(G.lastEvent)} alt="" />
+          <ZoomImg src={eventImg(G.lastEvent)} alt="" />
           <div>
             <b>Событие «{EVENT_BY_ID[G.lastEvent]?.name}»</b>
             {G.eventRolls.length > 0 && <div>Кубик: {G.eventRolls.map((r) => `${r} (${areaDef(r).name})`).join(', ')}</div>}

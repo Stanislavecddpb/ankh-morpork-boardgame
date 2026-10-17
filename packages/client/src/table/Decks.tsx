@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EVENT_BY_ID, PERSONALITY_BY_ID, deckSize, eventsLeft, type AMState, type PersonalityId } from '@am/engine';
+import { ZoomImg } from './ZoomImg';
 import { BACK_EVENT, BACK_PERSONALITY, BACK_PLAY, eventImg, personalityImg } from './assets';
 
 /** Колоды справа от поля, как на реальном столе: игровая, сброс и события рубашкой вверх. */
@@ -26,7 +27,7 @@ export function Decks({ G, personality, flipKey }: { G: AMState; personality: Pe
       </figure>
       {G.lastEvent && (
         <figure className="deck">
-          <img src={eventImg(G.lastEvent)} alt={EVENT_BY_ID[G.lastEvent]?.name} title={EVENT_BY_ID[G.lastEvent]?.name} />
+          <ZoomImg src={eventImg(G.lastEvent)} alt={EVENT_BY_ID[G.lastEvent]?.name} />
           <figcaption>Событие хода</figcaption>
         </figure>
       )}

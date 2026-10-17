@@ -1,5 +1,6 @@
 import { AREA_IDS, CARD_BY_ID, areaDef, controls, type AMState } from '@am/engine';
 import { DISTRICT_TEXT } from './districtText';
+import { ZoomImg } from './ZoomImg';
 import { COLOR_HEX, cardImg, districtImg } from './assets';
 
 export function PlayersPanel({ G, ctx, nameOf, onPick }: {
@@ -29,14 +30,13 @@ export function PlayersPanel({ G, ctx, nameOf, onPick }: {
               <div className="player-districts">
                 {districts.map((id) => {
                   const off = G.disabledDistricts.includes(id) || G.areas[id].demons > 0;
-                  return <img key={id} className={off ? 'district off' : 'district'} src={districtImg(id)} alt={areaDef(id).name}
-                    title={`${areaDef(id).name}: ${DISTRICT_TEXT[id]}${off ? ' (не работает)' : ''}`} />;
+                  return <ZoomImg key={id} className={off ? 'district off' : 'district'} src={districtImg(id)} alt={`${areaDef(id).name}: ${DISTRICT_TEXT[id]}`} />;
                 })}
               </div>
             )}
             {p.front.length > 0 && (
               <div className="player-front">
-                {p.front.map((c) => <img key={c} src={cardImg(c)} alt={CARD_BY_ID[c]?.name} title={CARD_BY_ID[c]?.name} />)}
+                {p.front.map((c) => <ZoomImg key={c} src={cardImg(c)} alt={CARD_BY_ID[c]?.name} />)}
               </div>
             )}
           </div>

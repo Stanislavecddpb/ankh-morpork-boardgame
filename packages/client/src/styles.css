@@ -161,7 +161,7 @@ button:disabled { cursor: default; opacity: 0.5; }
 .table-side { overflow-y: auto; }
 .player-front { display: flex; gap: 3px; margin-top: 3px; }
 .player-front img { height: 46px; border-radius: 3px; transition: transform 0.15s; transform-origin: top left; }
-.player-front img:hover { transform: scale(3.5); position: relative; z-index: 20; }
+
 .reveal-box { max-width: 900px; }
 
 .prompt-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6; max-width: min(860px, 92%);
