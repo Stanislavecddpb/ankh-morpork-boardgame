@@ -3,3 +3,4 @@ export * from './run';
 export * from './ops';
 import './instant';
 import './hand';
+import './players';
