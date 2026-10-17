@@ -37,10 +37,10 @@ describe('условия победы', () => {
   it('Хризопраз: состояние с учётом зданий и займов', () => {
     const G = game(3, ['chrysoprase', 'lord-rust', 'lord-selachii']);
     G.players['0'].money = 40;
-    G.areas[2].building = '0'; // $18
-    expect(netWorth(G, '0')).toBe(58);
+    G.areas[2].building = '0'; // $17
+    expect(netWorth(G, '0')).toBe(57);
     G.players['0'].loans = 1;
-    expect(netWorth(G, '0')).toBe(46);
+    expect(netWorth(G, '0')).toBe(45);
     expect(hasWon(G, '0', 3)).toBe(false);
   });
 
@@ -61,9 +61,9 @@ describe('конец колоды', () => {
   it('подсчёт очков: слуги, здания, деньги, займы', () => {
     const G = game(2, ['lord-rust', 'lord-selachii']);
     // У каждого 3 слуги (15) + $10.
-    G.areas[2].building = '0'; // +18
+    G.areas[2].building = '0'; // +17
     G.players['0'].loans = 1; // гасит $12 из $10 не может → −15
-    expect(finalScore(G, '0')).toBe(15 + 18 + 10 - 15);
+    expect(finalScore(G, '0')).toBe(15 + 17 + 10 - 15);
     G.players['1'].money = 30;
     G.players['1'].loans = 1; // гасит: 30 − 12 = 18
     expect(finalScore(G, '1')).toBe(15 + 18);
