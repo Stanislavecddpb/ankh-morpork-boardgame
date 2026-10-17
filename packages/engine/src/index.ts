@@ -7,3 +7,5 @@ export * from './rules';
 export * from './victory';
 export * from './turn';
 export * from './manual';
+export * from './view';
+export * from './game';
