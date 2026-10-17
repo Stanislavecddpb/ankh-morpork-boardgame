@@ -77,8 +77,10 @@ export const AnkhMorporkGame: Game<AMState> = {
           if (playerID !== '0' || G.started) return INVALID_MOVE;
           if (Object.values(G.players).some((p) => !p.color)) return INVALID_MOVE;
           G.started = true;
+          // Первый игрок — по жребию, независимо от того, кто какое место занял в лобби.
           G.startIndex = random.Die(ctx.numPlayers) - 1;
           log(G, 'Игра началась');
+          log(G, `Жребий: первым ходит ${nameOf(G, ctx.playOrder[G.startIndex])}`);
         },
       },
     },
