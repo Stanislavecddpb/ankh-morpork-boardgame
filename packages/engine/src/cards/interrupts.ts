@@ -5,7 +5,7 @@ import { CARD_BY_ID } from '../data/cards';
 import { log, nameOf } from '../helpers';
 import { troubleEnter } from '../rules';
 import { advanceSymbol } from '../turn';
-import { answerPrompt, type EffectApi } from './run';
+import { answerPrompt, runEffect, type EffectApi } from './run';
 
 const GASPODE = 'gaspode';
 const SUSAN = 'susan';
@@ -15,6 +15,9 @@ const RELOCATE = ['fresh-start-club', 'igor'];
 const PREVENT = [GASPODE, SUSAN, SONKY];
 
 /** События, от которых спасают Сьюзан, Клуб и Игорь (FAQ). */
+/** Тексты карт, касающиеся всех остальных игроков без выбора цели: против них — Сонки заранее. */
+export const MASS_CARDS = ['mr-boggis', 'thieves-guild', 'ankh-morpork-sunshine-dragon-sanctuary', 'auditors'];
+
 export const LOSS_EVENTS = ['event:the-dragon', 'event:bloody-stupid-johnson', 'event:mysterious-murders'];
 
 export const isInterrupt = (cardId: string) => !!CARD_BY_ID[cardId]?.symbols.some((s) => s.kind === 'interrupt');
@@ -43,7 +46,7 @@ function lossText(l: Loss): string {
 
 /** Пересчитать варианты; false — предлагать нечего. */
 function refresh(G: AMState, o: Offer): boolean {
-  if (o.source === 'target') return true;
+  if (o.source === 'target' || o.source === 'mass') return true;
   const hand = G.players[o.player].hand;
   o.options = [];
   o.labels = {};
@@ -82,6 +85,20 @@ export function offerLosses(G: AMState, snap: Snapshot, source: 'assassinate' | 
     const o: Offer = { player: pid, source, losses, options: [], labels: {} };
     if (refresh(G, o)) G.offers.push(o);
   }
+}
+
+/** Сонки против текста «для всех остальных»: предложить каждому владельцу. true — есть кого спросить. */
+export function offerMass(G: AMState, others: PlayerID[]): boolean {
+  const card = G.play ? cardName(G.play.cardId) : 'текст карты';
+  for (const pid of others) {
+    if (!hasCard(G, pid, SONKY)) continue;
+    G.offers.push({
+      player: pid, source: 'mass', losses: [],
+      options: [SONKY, 'none'],
+      labels: { [SONKY]: `${cardName(SONKY)}: «${card}» вас не касается`, none: 'Не играть' },
+    });
+  }
+  return G.offers.length > 0;
 }
 
 /** Сонки: игрока выбрали целью текста карты. Возвращает true, если ответ отложен до решения игрока. */
@@ -124,6 +141,21 @@ export function answerOffer(api: EffectApi, responder: PlayerID, choice: string 
 
   const key = String(choice);
   if (!o.options.includes(key)) return 'Такой вариант недоступен';
+
+  if (o.source === 'mass') {
+    G.offers.shift();
+    if (key !== 'none') {
+      discardFromHand(G, responder, SONKY);
+      G.immune = [...(G.immune ?? []), responder];
+      log(G, `${who}: «${cardName(SONKY)}» — текст карты его не касается`);
+    }
+    // Все ответили — разыгрываем текст для остальных.
+    if (!G.offers.some((x) => x.source === 'mass')) {
+      const fresh = { ...api, others: api.others.filter((x) => !G.immune?.includes(x)) };
+      return runEffect(fresh, G.play!.cardId, 'scroll', (eff) => eff.start(fresh));
+    }
+    return null;
+  }
 
   if (o.source === 'target') {
     G.offers.shift();

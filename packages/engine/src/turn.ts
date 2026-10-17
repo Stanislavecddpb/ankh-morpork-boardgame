@@ -16,6 +16,7 @@ export function startTurn(G: AMState): void {
   G.peek = null;
   G.prompt = null;
   G.offers = [];
+  G.immune = [];
   G.lastPlayed = null;
 }
 

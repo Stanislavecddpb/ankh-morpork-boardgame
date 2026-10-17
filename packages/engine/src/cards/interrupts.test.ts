@@ -177,3 +177,30 @@ describe('игрок отошёл', () => {
     expect(s.G.log.some((l) => l.includes('отвечает за игрока'))).toBe(true);
   });
 });
+
+describe('Уоллис Сонки против текста «для всех»', () => {
+  it('Мистер Боггис: сыгравший Сонки не платит, остальные платят', () => {
+    const s = scenario('mr-boggis', { setup: give('2', 'wallace-sonky') });
+    expect(s.start()).toBeNull();
+    expect(s.G.offers[0]).toMatchObject({ player: '2', source: 'mass' });
+    expect(s.G.players['1'].money).toBe(10);
+    expect(s.offer('2', 'wallace-sonky')).toBeNull();
+    expect([s.G.players['0'].money, s.G.players['1'].money, s.G.players['2'].money]).toEqual([12, 8, 10]);
+    expect(s.G.players['2'].hand).not.toContain('wallace-sonky');
+    expect(s.G.immune).toEqual([]);
+  });
+
+  it('отказ — платят все', () => {
+    const s = scenario('thieves-guild', { setup: give('1', 'wallace-sonky') });
+    s.start();
+    expect(s.offer('1', 'none')).toBeNull();
+    expect([s.G.players['0'].money, s.G.players['1'].money, s.G.players['2'].money]).toEqual([14, 8, 8]);
+  });
+
+  it('Аудиторы: сыгравший Сонки слугу не убирает', () => {
+    const s = scenario('auditors', { setup: give('1', 'wallace-sonky') });
+    s.start();
+    s.offer('1', 'wallace-sonky');
+    expect(s.G.prompt).toMatchObject({ actor: '2' });
+  });
+});

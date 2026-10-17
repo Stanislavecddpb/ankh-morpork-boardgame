@@ -2,7 +2,7 @@ import type { AMState, Choice, PlayerID, Prompt, PromptOrigin } from '../types';
 import { advanceSymbol, currentSymbol } from '../turn';
 import { CARD_BY_ID, EVENT_BY_ID } from '../data/cards';
 import { areaDef } from '../data/areas';
-import { LOSS_EVENTS, offerLosses, offerTarget, snapshot } from './interrupts';
+import { LOSS_EVENTS, MASS_CARDS, offerLosses, offerMass, offerTarget, snapshot } from './interrupts';
 
 export interface Rnd {
   d12(): number;
@@ -43,7 +43,8 @@ export function makeApi(G: AMState, pid: PlayerID, order: PlayerID[], rnd: Rnd):
   const i = order.indexOf(pid);
   const api: EffectApi = {
     G, pid, rnd,
-    others: [...order.slice(i + 1), ...order.slice(0, i)],
+    // Сыгравшие Сонки против текущего текста карты в «остальных игроках» не участвуют.
+    others: [...order.slice(i + 1), ...order.slice(0, i)].filter((o) => !G.immune?.includes(o)),
     locked: false,
     lock() { api.locked = true; },
   };
@@ -77,6 +78,7 @@ function settle(api: EffectApi, next: Next | string, key: string, origin: Prompt
     if (next.locked) api.lock();
   } else {
     G.prompt = null;
+    if (origin === 'scroll') G.immune = [];
     if (origin !== 'district' && G.play) advanceSymbol(G);
   }
   return null;
@@ -87,6 +89,9 @@ export function startScroll(api: EffectApi): string | null {
   if (!G.play || currentSymbol(G)?.kind !== 'scroll') return 'Сейчас не текст карты';
   if (G.prompt) return 'Текст карты уже разыгрывается';
   if (!effectFor(G.play.cardId)) return 'Эта карта разыгрывается вручную';
+  if (G.offers.length) return 'Ждём ответа на прерывание';
+  // Текст касается всех остальных: сначала спросить владельцев Сонки (эффект запустится после ответов).
+  if (MASS_CARDS.includes(G.play.cardId) && offerMass(G, api.others)) { api.lock(); return null; }
   return runEffect(api, G.play.cardId, 'scroll', (eff) => eff.start(api));
 }
 

@@ -69,6 +69,8 @@ export function OfferModal({ G, me, moves }: { G: AMState; me: string | null; mo
     ? `«${nameOfCard(o.relocate.card)}»: в какой район поставить слугу?`
     : o.source === 'target'
       ? 'Вас выбрали целью текста карты. Сыграть прерывание?'
+      : o.source === 'mass'
+        ? `${G.play ? `«${nameOfCard(G.play.cardId)}»` : 'Текст карты'} касается всех игроков. Сыграть прерывание?`
       : `Ваш${o.losses.length > 1 ? 'их слуг' : 'его слугу'} ${o.losses.some((l) => l.to != null) ? 'убрали или передвинули' : 'убрали'}. Сыграть прерывание?`;
   return (
     <Collapsible id={JSON.stringify(o.options)} title="прерывание" className="respond-box offer-box">

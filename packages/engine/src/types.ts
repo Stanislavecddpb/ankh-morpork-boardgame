@@ -106,7 +106,7 @@ export interface Loss { area: AreaId; to?: AreaId; trouble: boolean; troubleTo?:
 export interface Offer {
   player: PlayerID;
   /** assassinate — символ убийства, scroll — текст карты, event — событие, target — выбран целью текста карты. */
-  source: 'assassinate' | 'scroll' | 'event' | 'target';
+  source: 'assassinate' | 'scroll' | 'event' | 'target' | 'mass';
   losses: Loss[];
   /** Варианты: card@i (карта против потери i), card (Сонки как цель), none. */
   options: string[];
@@ -152,6 +152,8 @@ export interface AMState {
   eventShow: { seq: number; diceSeq: number };
   /** Предложения сыграть прерывание (по очереди; пока есть — остальное ждёт). */
   offers: Offer[];
+  /** Сыграли Уоллиса Сонки против текущего текста карты: эффект их не касается. */
+  immune?: PlayerID[];
   /** Последняя карта, сыгранная в этот ход (для Доктора Мосси Лауна). */
   lastPlayed: string | null;
   /** Последний ход свитка открыл скрытое/случайное — его нельзя отменить. */
