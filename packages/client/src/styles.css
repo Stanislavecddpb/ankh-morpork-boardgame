@@ -260,3 +260,5 @@ button:disabled { cursor: default; opacity: 0.5; }
 .hand-card[aria-disabled='true'] { cursor: default; }
 .hand-card[aria-disabled='true']:hover { transform: none; }
 .popup-box:has(> .popup-hide) { padding-top: 44px; }
+/* Во время партии полоска с кодом и ссылкой не нужна — только в лобби. */
+.room:has(.board) .room-bar { display: none; }
