@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Client } from 'boardgame.io/react';
 import { AnkhMorporkGame } from '@am/engine';
 import { HotseatBoard } from './table/Table';
+import { SeatContext } from './table/PromptModals';
 import { Page, PlayerCountPicker } from './Page';
 
 // Хотсит: один клиент без сервера. Скрытие информации выключено (playerView: undefined),
@@ -18,6 +19,8 @@ function makeHotseatClient(numPlayers: number) {
 export function LocalGame() {
   const [numPlayers, setNumPlayers] = useState(4);
   const [started, setStarted] = useState(false);
+  // Чьими глазами смотрит клиент: текущий игрок или тот, кто отвечает на вопрос карты.
+  const [seat, setSeat] = useState('0');
   const HotseatClient = useMemo(() => makeHotseatClient(numPlayers), [numPlayers]);
 
   if (!started) {
@@ -33,5 +36,9 @@ export function LocalGame() {
       </Page>
     );
   }
-  return <HotseatClient matchID="local" />;
+  return (
+    <SeatContext.Provider value={setSeat}>
+      <HotseatClient matchID="local" playerID={seat} />
+    </SeatContext.Provider>
+  );
 }

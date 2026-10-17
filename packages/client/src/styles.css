@@ -165,3 +165,9 @@ button:disabled { cursor: default; opacity: 0.5; }
 .player-pick { background: #fffaf0; color: var(--ink); border-width: 3px; }
 .hand-card.picked img { outline: 4px solid #2e8b2e; transform: translateY(-14px); }
 .hand-select { align-self: center; display: flex; flex-direction: column; gap: 6px; padding: 0 8px; }
+
+.respond-box { flex-direction: row; gap: 16px; max-width: 900px; align-items: flex-start; }
+.respond-card { height: min(60vh, 520px); border-radius: 10px; box-shadow: var(--shadow); }
+.respond-body { display: flex; flex-direction: column; gap: 8px; min-width: 260px; }
+.respond-body .reveal img, .reveal-box .reveal img { height: 200px; }
+.handoff { background: #1a120bdd; z-index: 40; }

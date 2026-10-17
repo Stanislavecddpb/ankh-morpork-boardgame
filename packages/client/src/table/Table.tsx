@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
 import {
   areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
   legalMinionAreas, parsePiece, pieceName, troubleAreas, AREA_IDS, type AMState, type AreaId, type Target,
 } from '@am/engine';
 import { PromptBar } from './PromptBar';
+import { Handoff, RespondModal, RevealModal, SeatContext } from './PromptModals';
 import { Lobby } from './Lobby';
 import { BoardView } from './BoardView';
 import { Hand } from './Hand';
@@ -23,7 +24,20 @@ export function NetBoard(p: BoardProps<AMState>) {
 }
 
 export function HotseatBoard(p: BoardProps<AMState>) {
-  return <Table G={p.G} ctx={p.ctx} moves={p.moves} undo={p.undo} me={p.ctx.currentPlayer} />;
+  const setSeat = useContext(SeatContext);
+  const { G, ctx } = p;
+  const response = !!G.prompt && G.prompt.actor !== ctx.currentPlayer;
+  const desired = ctx.phase === 'lobby' ? '0' : G.prompt?.actor ?? ctx.currentPlayer;
+  const seat = p.playerID ?? ctx.currentPlayer;
+  // Обычная смена хода — переключаемся сразу (рука в выдвижной панели, личность рубашкой вверх).
+  useEffect(() => { if (setSeat && !response && desired !== seat) setSeat(desired); }, [setSeat, response, desired, seat]);
+  const name = G.players[desired]?.name ?? `Игрок ${Number(desired) + 1}`;
+  return (
+    <>
+      <Table G={G} ctx={ctx} moves={p.moves} undo={p.undo} me={seat} />
+      {response && desired !== seat && setSeat && <Handoff name={name} onReady={() => setSeat(desired)} />}
+    </>
+  );
 }
 
 export interface TableProps {
@@ -152,6 +166,8 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       {menuArea != null && manualOn && (
         <ManualAreaMenu G={G} area={menuArea} moves={moves} nameOf={nameOf} onClose={() => setMenuArea(null)} />
       )}
+      <RespondModal G={G} ctx={ctx} me={me} moves={moves} />
+      <RevealModal G={G} me={me} moves={moves} />
       <PeekModal G={G} me={me} />
       {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}
     </div>
