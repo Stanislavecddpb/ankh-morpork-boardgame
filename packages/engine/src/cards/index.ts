@@ -4,3 +4,4 @@ export * from './ops';
 import './instant';
 import './hand';
 import './players';
+import './board';
