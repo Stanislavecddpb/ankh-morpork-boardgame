@@ -48,3 +48,8 @@ button:disabled { cursor: default; opacity: 0.5; }
 .room-bar > :last-child { margin-left: auto; }
 .room > :last-child { flex: 1; min-height: 0; }
 .table { flex: 1; min-height: 0; color: var(--paper); }
+
+.editor { height: 100%; display: flex; flex-direction: column; background: #222; }
+.editor-bar { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; }
+.editor-bar button.on { background: #ffd54a; }
+.editor-board { flex: 1; min-height: 0; width: 100%; cursor: crosshair; }
