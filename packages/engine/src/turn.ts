@@ -15,6 +15,8 @@ export function startTurn(G: AMState): void {
   G.startOwners = Object.fromEntries(AREA_IDS.map((id) => [id, G.areas[id].building]));
   G.peek = null;
   G.prompt = null;
+  G.offers = [];
+  G.lastPlayed = null;
 }
 
 export function currentSymbol(G: AMState): CardSymbol | undefined {
@@ -50,6 +52,7 @@ export function playCard(G: AMState, pid: PlayerID, cardId: string): string | nu
   hand.splice(i, 1);
   G.playsLeft--;
   G.cardsPlayed++;
+  G.lastPlayed = cardId;
   G.play = { cardId, queue: CARD_BY_ID[cardId].symbols.map((s) => ({ ...s })) };
   log(G, `${nameOf(G, pid)} играет «${CARD_BY_ID[cardId].name}»`);
   finishIfDone(G);
@@ -140,6 +143,7 @@ export function skipSymbol(G: AMState, pid: PlayerID): string | null {
 }
 
 export function canEndTurn(G: AMState, pid: PlayerID): string | null {
+  if (G.offers.length) return 'Ждём ответа на прерывание';
   if (G.prompt) return 'Сначала ответьте на вопрос карты';
   if (G.play) return 'Сначала доиграйте карту';
   if (G.cardsPlayed === 0 && G.players[pid].hand.length > 0) return 'Сначала сыграйте карту';

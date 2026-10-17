@@ -25,7 +25,7 @@ export function districtBlock(G: AMState, pid: PlayerID, area: AreaId): string |
   if (area === SMALL_GODS) return 'Мелкие Боги срабатывают сами при событиях';
   if (!districtActive(G, area, pid)) return 'Карточка района сейчас не работает';
   if (G.districtsUsed.includes(area)) return 'Уже использовано в этот ход';
-  if (G.prompt) return 'Сначала ответьте на вопрос';
+  if (G.prompt || G.offers.length) return 'Сначала ответьте на вопрос';
   switch (area) {
     case 1: case 8: return p.money < 3 ? 'Нужно $3' : p.minionSupply < 1 ? 'Нет слуг в запасе' : null;
     case 2: return G.deck.length === 0 ? 'Колода пуста' : null;

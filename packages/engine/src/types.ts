@@ -99,6 +99,24 @@ export interface Prompt {
   locked?: boolean;
 }
 
+/** Слуга игрока, которого убрали (to нет) или передвинули (to — куда) чужим действием. */
+export interface Loss { area: AreaId; to?: AreaId; trouble: boolean; troubleTo?: boolean }
+
+/** Предложение сыграть прерывание: пострадавший, его потери и подходящие карты из руки. */
+export interface Offer {
+  player: PlayerID;
+  /** assassinate — символ убийства, scroll — текст карты, event — событие, target — выбран целью текста карты. */
+  source: 'assassinate' | 'scroll' | 'event' | 'target';
+  losses: Loss[];
+  /** Варианты: card@i (карта против потери i), card (Сонки как цель), none. */
+  options: string[];
+  labels: Record<string, string>;
+  /** Клуб/Игорь: карта сыграна, ждём район. */
+  relocate?: { card: string; area: AreaId; options: AreaId[] };
+  /** Сонки как цель: отложенный ответ на вопрос текста карты. */
+  choice?: string;
+}
+
 export interface AMState {
   started: boolean;
   /** Позиция первого игрока в ctx.playOrder. */
@@ -128,6 +146,10 @@ export interface AMState {
   /** Неиспользованные личности (скрыты). */
   spare: PersonalityId[];
   prompt: Prompt | null;
+  /** Предложения сыграть прерывание (по очереди; пока есть — остальное ждёт). */
+  offers: Offer[];
+  /** Последняя карта, сыгранная в этот ход (для Доктора Мосси Лауна). */
+  lastPlayed: string | null;
   /** Последний ход свитка открыл скрытое/случайное — его нельзя отменить. */
   noUndo: boolean;
   /** Ручной просмотр неиспользованных личностей: виден только player. */

@@ -10,15 +10,31 @@ import {
 import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, type ManualAction } from './manual';
 import { allPersonalities, deckOutResult, hasWon } from './victory';
 import { playerView } from './view';
-import { answerPrompt, makeApi, startEvent, startScroll, useDistrict, type Rnd } from './cards';
+import {
+  answerOffer, answerPrompt, makeApi, mossyLawn, offerLosses, playInterrupt, snapshot, startEvent, startScroll, useDistrict, type Rnd,
+} from './cards';
 
 export const GAME_ID = 'ankh-morpork';
 
 const check = (error: string | null) => (error ? INVALID_MOVE : undefined);
 
 /** В фазе play активны все (чтобы соперник мог отвечать); ходить может только текущий игрок. */
-const turnOnly = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
+const ownTurn = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
   (c: any, ...args: A): any => (c.playerID === c.ctx.currentPlayer ? fn(c, ...args) : INVALID_MOVE);
+/** То же, но пока кто-то решает, играть ли прерывание, ход ждёт (ручной режим — нет). */
+const turnOnly = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
+  ownTurn((c: any, ...args: A): any => (c.G.offers.length ? INVALID_MOVE : fn(c, ...args)));
+
+/** Добор и передача хода (или конец игры, если колода кончилась). */
+function endTurnWithRefill({ G, playerID, events }: any): void {
+  refillHand(G, playerID);
+  if (G.deck.length === 0) {
+    G.gameover = deckOutResult(G);
+    log(G, 'Колода закончилась — игра окончена');
+    return;
+  }
+  events.endTurn();
+}
 
 /** Контекст эффекта свитка: от имени текущего игрока (владельца карты); случайность — random boardgame.io. */
 function apiFor(c: any) {
@@ -78,12 +94,44 @@ export const AnkhMorporkGame: Game<AMState> = {
         playCard: turnOnly(({ G, playerID }, cardId: string) => check(playCard(G, playerID, cardId))),
         placeMinion: turnOnly(({ G, playerID }, area: AreaId, from?: AreaId) => check(doMinion(G, playerID, area, from))),
         build: turnOnly(({ G, playerID }, area: AreaId, from?: AreaId) => check(doBuild(G, playerID, area, from))),
-        assassinate: turnOnly(({ G, playerID }, area: AreaId, target: Target) => check(doAssassinate(G, playerID, area, target))),
+        // Убийство чужого слуги может открыть предложение прерывания — тогда без отмены (раскрыта рука).
+        assassinate: {
+          move: turnOnly(({ G, playerID }, area: AreaId, target: Target) => {
+            const snap = snapshot(G);
+            if (doAssassinate(G, playerID, area, target)) return INVALID_MOVE;
+            offerLosses(G, snap, 'assassinate', playerID);
+            G.noUndo = G.offers.length > 0;
+          }),
+          undoable: ({ G }: { G: AMState }) => !G.noUndo,
+        },
         removeTrouble: turnOnly(({ G, playerID }, area: AreaId) => check(doRemoveTrouble(G, playerID, area))),
         takeMoney: turnOnly(({ G, playerID }) => check(doMoney(G, playerID))),
         playAnother: turnOnly(({ G, playerID }) => check(doPlayAnother(G, playerID))),
         skipSymbol: turnOnly(({ G, playerID }) => check(skipSymbol(G, playerID))),
-        manual: turnOnly(({ G, playerID }, action: ManualAction) => check(applyManual(G, playerID, action))),
+        manual: ownTurn(({ G, playerID }, action: ManualAction) => check(applyManual(G, playerID, action))),
+
+        // Прерывания: решает пострадавший (не текущий игрок), сбросить карту-прерывание может любой.
+        interrupt: {
+          move: (c: any, choice: string | number): any => {
+            const api = apiFor(c);
+            if (answerOffer(api, c.playerID, choice)) return INVALID_MOVE;
+            c.G.noUndo = true;
+          },
+          client: false,
+          undoable: false,
+        },
+        playInterrupt: {
+          move: ({ G, playerID }: any, card: string): any => check(playInterrupt(G, playerID, card)),
+          undoable: false,
+        },
+        mossyLawn: {
+          move: turnOnly((c) => {
+            if (mossyLawn(c.G, c.playerID)) return INVALID_MOVE;
+            endTurnWithRefill(c);
+          }),
+          client: false,
+          undoable: false,
+        },
 
         startScroll: {
           move: turnOnly((c) => {
@@ -122,7 +170,7 @@ export const AnkhMorporkGame: Game<AMState> = {
           undoable: false,
         },
         manualDraw: {
-          move: turnOnly(({ G, playerID }) => {
+          move: ownTurn(({ G, playerID }) => {
             if (drawCards(G, playerID, 1) === 0) return INVALID_MOVE;
             log(G, `✋ ${nameOf(G, playerID)}: берёт карту из колоды`);
           }),
@@ -130,39 +178,40 @@ export const AnkhMorporkGame: Game<AMState> = {
           undoable: false,
         },
         manualTakeRandom: {
-          move: turnOnly(({ G, playerID, random }, from: string) => check(takeRandomCard(G, playerID, from, random.Shuffle))),
+          move: ownTurn(({ G, playerID, random }, from: string) => check(takeRandomCard(G, playerID, from, random.Shuffle))),
           client: false,
           undoable: false,
         },
         manualEventBack: {
-          move: turnOnly(({ G, playerID, random }, where: 'top' | 'shuffle') => check(eventBack(G, playerID, where, random.Shuffle))),
+          move: ownTurn(({ G, playerID, random }, where: 'top' | 'shuffle') => check(eventBack(G, playerID, where, random.Shuffle))),
           client: false,
           undoable: false,
         },
         manualSwapPersonality: {
-          move: turnOnly(({ G, playerID, random }) => check(swapPersonality(G, playerID, random.Shuffle))),
+          move: ownTurn(({ G, playerID, random }) => check(swapPersonality(G, playerID, random.Shuffle))),
           client: false,
           undoable: false,
         },
         manualPeekSpare: {
-          move: turnOnly(({ G, playerID }) => check(peekSpare(G, playerID))),
+          move: ownTurn(({ G, playerID }) => check(peekSpare(G, playerID))),
           client: false,
           undoable: false,
         },
         manualRoll: {
-          move: turnOnly(({ G, playerID, random }) => {
+          move: ownTurn(({ G, playerID, random }) => {
             log(G, `✋ ${nameOf(G, playerID)}: на кубике ${random.D12()}`);
           }),
           client: false,
           undoable: false,
         },
         manualEndTurn: {
-          move: turnOnly(({ G, playerID, events }) => {
+          move: ownTurn(({ G, playerID, events }) => {
             if (G.play) {
               G.discard.push(G.play.cardId);
               G.play = null;
             }
             G.prompt = null;
+            G.offers = [];
             log(G, `✋ ${nameOf(G, playerID)}: заканчивает ход без добора`);
             events.endTurn();
           }),
@@ -170,15 +219,9 @@ export const AnkhMorporkGame: Game<AMState> = {
           undoable: false,
         },
         finishTurn: {
-          move: turnOnly(({ G, playerID, events }) => {
-            if (canEndTurn(G, playerID)) return INVALID_MOVE;
-            refillHand(G, playerID);
-            if (G.deck.length === 0) {
-              G.gameover = deckOutResult(G);
-              log(G, 'Колода закончилась — игра окончена');
-              return;
-            }
-            events.endTurn();
+          move: turnOnly((c) => {
+            if (canEndTurn(c.G, c.playerID)) return INVALID_MOVE;
+            endTurnWithRefill(c);
           }),
           client: false,
           undoable: false,

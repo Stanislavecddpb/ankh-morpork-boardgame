@@ -179,6 +179,8 @@ function rng(seed: number) {
 }
 
 let used = 0;
+let offers = 0;
+let mossy = 0;
 function autoplay(numPlayers: number, seed: number) {
   const client = started(numPlayers, { ...testGame, seed: `seed-${seed}` });
   const r = rng(seed);
@@ -186,6 +188,13 @@ function autoplay(numPlayers: number, seed: number) {
   for (let step = 0; step < 20000; step++) {
     const { G, ctx } = client.getState()!;
     if (ctx.gameover) return ctx.gameover;
+    const of = G.offers[0];
+    if (of) {
+      client.updatePlayerID(of.player);
+      client.moves.interrupt(pick(of.options));
+      offers++;
+      continue;
+    }
     const pr = G.prompt;
     if (pr) {
       // Отвечает тот, кого спрашивают (в том числе соперник).
@@ -201,6 +210,11 @@ function autoplay(numPlayers: number, seed: number) {
     client.updatePlayerID(ctx.currentPlayer);
     const pid = ctx.currentPlayer;
     const p = G.players[pid];
+    if (p.hand.includes('dr-mossy-lawn') && G.cardsPlayed > 0 && r() < 0.3) {
+      const before = ctx.turn;
+      client.moves.mossyLawn();
+      if (client.getState()!.ctx.turn !== before) { mossy++; continue; }
+    }
     const ds = usableDistricts(G, pid);
     if (ds.length && r() < 0.5) {
       client.moves.useDistrict(pick(ds));
@@ -261,4 +275,8 @@ describe('автопартии до конца', () => {
     }
   }
   it('боты пользовались способностями районов', () => expect(used).toBeGreaterThan(0));
+  it('ботам предлагали прерывания, Мосси Лаун срабатывал', () => {
+    expect(offers).toBeGreaterThan(0);
+    expect(mossy).toBeGreaterThan(0);
+  });
 });

@@ -2,6 +2,7 @@ import type { AMState, Choice, PlayerID, Prompt, PromptOrigin } from '../types';
 import { advanceSymbol, currentSymbol } from '../turn';
 import { CARD_BY_ID, EVENT_BY_ID } from '../data/cards';
 import { areaDef } from '../data/areas';
+import { LOSS_EVENTS, offerLosses, offerTarget, snapshot } from './interrupts';
 
 export interface Rnd {
   d12(): number;
@@ -61,7 +62,11 @@ export function runEffect(api: EffectApi, key: string, origin: PromptOrigin, ste
   const eff = effectFor(key);
   if (!eff) return 'Эффект разыгрывается вручную';
   api.title = effectTitle(key);
-  return settle(api, step(eff), key, origin);
+  // Чужие слуги до и после шага: потери — повод предложить прерывание.
+  const snap = snapshot(api.G);
+  const err = settle(api, step(eff), key, origin);
+  if (!err && (origin === 'scroll' || LOSS_EVENTS.includes(key))) offerLosses(api.G, snap, origin === 'scroll' ? 'scroll' : 'event', api.pid);
+  return err;
 }
 
 function settle(api: EffectApi, next: Next | string, key: string, origin: PromptOrigin): string | null {
@@ -97,12 +102,15 @@ function validate(G: AMState, p: Prompt, c: Choice): string | null {
 }
 
 /** Ответ на вопрос. api.pid — тот, кто разыгрывает карту; responder — кто отвечает (может быть соперник). */
-export function answerPrompt(api: EffectApi, responder: PlayerID, choice: Choice): string | null {
+export function answerPrompt(api: EffectApi, responder: PlayerID, choice: Choice, opts: { noSonky?: boolean } = {}): string | null {
   const p = api.G.prompt;
   if (!p) return 'Нет вопроса';
+  if (api.G.offers.length) return 'Ждём ответа на прерывание';
   if (p.actor !== responder) return 'Сейчас отвечает другой игрок';
   const err = validate(api.G, p, choice);
   if (err) return err;
   if (!effectFor(p.cardId)?.answer) return 'Эффект не ждёт ответа';
+  // Уоллис Сонки: выбранный целью текста чужой карты может отказаться от эффекта.
+  if (!opts.noSonky && p.origin === 'scroll' && p.kind === 'player' && choice !== api.pid && offerTarget(api.G, String(choice), String(choice))) return null;
   return runEffect(api, p.cardId, p.origin, (eff) => eff.answer!(api, p, choice));
 }

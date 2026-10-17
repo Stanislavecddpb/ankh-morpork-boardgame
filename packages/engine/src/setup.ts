@@ -63,6 +63,8 @@ export function setupGame(numPlayers: number, shuffle: Shuffle): AMState {
     gameover: null,
     spare: personalities.slice(numPlayers),
     prompt: null,
+    offers: [],
+    lastPlayed: null,
     noUndo: false,
     peek: null,
   };
