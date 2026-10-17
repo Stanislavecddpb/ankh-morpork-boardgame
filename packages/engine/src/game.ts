@@ -20,10 +20,10 @@ const check = (error: string | null) => (error ? INVALID_MOVE : undefined);
 const turnOnly = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
   (c: any, ...args: A): any => (c.playerID === c.ctx.currentPlayer ? fn(c, ...args) : INVALID_MOVE);
 
-/** Контекст для эффекта свитка: случайность — через random boardgame.io. */
+/** Контекст эффекта свитка: от имени текущего игрока (владельца карты); случайность — random boardgame.io. */
 function apiFor(c: any) {
   const rnd: Rnd = { d12: () => c.random.D12(), shuffle: (a) => c.random.Shuffle(a) };
-  return makeApi(c.G, c.playerID, c.ctx.playOrder, rnd);
+  return makeApi(c.G, c.ctx.currentPlayer, c.ctx.playOrder, rnd);
 }
 
 export const AnkhMorporkGame: Game<AMState> = {
@@ -98,7 +98,7 @@ export const AnkhMorporkGame: Game<AMState> = {
         answer: {
           move: (c: any, choice: Choice): any => {
             const api = apiFor(c);
-            if (answerPrompt(api, choice)) return INVALID_MOVE;
+            if (answerPrompt(api, c.playerID, choice)) return INVALID_MOVE;
             c.G.noUndo = api.locked;
           },
           client: false,

@@ -78,10 +78,11 @@ function validate(G: AMState, p: Prompt, c: Choice): string | null {
   return p.options.includes(c as string | number) ? null : 'Такой вариант недоступен';
 }
 
-export function answerPrompt(api: EffectApi, choice: Choice): string | null {
+/** Ответ на вопрос. api.pid — тот, кто разыгрывает карту; responder — кто отвечает (может быть соперник). */
+export function answerPrompt(api: EffectApi, responder: PlayerID, choice: Choice): string | null {
   const p = api.G.prompt;
   if (!p) return 'Нет вопроса';
-  if (p.actor !== api.pid) return 'Сейчас отвечает другой игрок';
+  if (p.actor !== responder) return 'Сейчас отвечает другой игрок';
   const err = validate(api.G, p, choice);
   if (err) return err;
   const eff = effectFor(p.cardId);

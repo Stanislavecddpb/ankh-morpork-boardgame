@@ -78,6 +78,31 @@ describe('свитки и отмена', () => {
   });
 });
 
+describe('ответ соперника по сети', () => {
+  it('отвечает только соперник', () => {
+    const g: Game<AMState> = {
+      ...testGame,
+      setup: (args) => {
+        const G = AnkhMorporkGame.setup!(args as never);
+        for (const p of Object.values(G.players)) p.hand[0] = 'fools-guild';
+        return G;
+      },
+    };
+    const client = started(2, g);
+    const cur = client.getState()!.ctx.currentPlayer;
+    const other = cur === '0' ? '1' : '0';
+    client.updatePlayerID(cur);
+    client.moves.playCard('fools-guild');
+    client.moves.startScroll();
+    client.moves.answer(other);
+    client.moves.answer('take'); // от имени текущего — отклонено
+    expect(client.getState()!.G.prompt?.actor).toBe(other);
+    client.updatePlayerID(other);
+    client.moves.answer('take');
+    expect(client.getState()!.G.prompt).toBeNull();
+  });
+});
+
 describe('чужой ход', () => {
   it('не текущий игрок не может играть карты', () => {
     const client = started(2);

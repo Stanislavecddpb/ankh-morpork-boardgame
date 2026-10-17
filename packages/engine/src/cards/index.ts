@@ -6,3 +6,4 @@ import './hand';
 import './players';
 import './board';
 import './dice';
+import './respond';

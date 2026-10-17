@@ -21,7 +21,7 @@ export function scenario(cardId: string, opts: { players?: number; rolls?: numbe
   return {
     G,
     start: () => startScroll(makeApi(G, '0', order, rnd)),
-    answer: (pid: PlayerID, choice: Choice) => answerPrompt(makeApi(G, pid, order, rnd), choice),
+    answer: (pid: PlayerID, choice: Choice) => answerPrompt(makeApi(G, '0', order, rnd), pid, choice),
     prompt: () => G.prompt,
   };
 }
