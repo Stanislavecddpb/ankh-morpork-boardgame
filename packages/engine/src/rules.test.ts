@@ -45,11 +45,11 @@ describe('здания', () => {
     expect(canBuildIn(G, '0', 1)).toBe(false); // беспорядок
     expect(canBuildIn(G, '0', 9)).toBe(false); // нет слуги
     placeMinion(G, '0', 2);
-    expect(canBuildIn(G, '0', 2)).toBe(false); // $17 > $10
+    expect(canBuildIn(G, '0', 2)).toBe(false); // $18 > $10
     G.players['0'].money = 20;
     expect(buildIn(G, '0', 2)).toBeNull();
     expect(G.areas[2].building).toBe('0');
-    expect(G.players['0'].money).toBe(3);
+    expect(G.players['0'].money).toBe(2);
     expect(G.players['0'].buildingSupply).toBe(5);
     expect(G.areas[2].trouble).toBe(false);
   });
