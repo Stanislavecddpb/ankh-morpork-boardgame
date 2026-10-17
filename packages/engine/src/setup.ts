@@ -64,6 +64,7 @@ export function setupGame(numPlayers: number, shuffle: Shuffle): AMState {
     spare: personalities.slice(numPlayers),
     prompt: null,
     offers: [],
+    dice: { seq: 0, values: [] },
     lastPlayed: null,
     noUndo: false,
     peek: null,

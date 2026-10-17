@@ -36,9 +36,20 @@ function endTurnWithRefill({ G, playerID, events }: any): void {
   events.endTurn();
 }
 
+/** Бросок d12 с записью в G.dice: первый бросок в действии начинает новую серию (новая анимация у всех). */
+function rollD12(c: any): number {
+  const v = c.random.D12();
+  if (!c.__diceStarted) {
+    c.G.dice = { seq: c.G.dice.seq + 1, values: [] };
+    c.__diceStarted = true;
+  }
+  c.G.dice.values.push(v);
+  return v;
+}
+
 /** Контекст эффекта свитка: от имени текущего игрока (владельца карты); случайность — random boardgame.io. */
 function apiFor(c: any) {
-  const rnd: Rnd = { d12: () => c.random.D12(), shuffle: (a) => c.random.Shuffle(a) };
+  const rnd: Rnd = { d12: () => rollD12(c), shuffle: (a) => c.random.Shuffle(a) };
   return makeApi(c.G, c.ctx.currentPlayer, c.ctx.playOrder, rnd);
 }
 
@@ -208,8 +219,8 @@ export const AnkhMorporkGame: Game<AMState> = {
           undoable: false,
         },
         manualRoll: {
-          move: ownTurn(({ G, playerID, random }) => {
-            log(G, `✋ ${nameOf(G, playerID)}: на кубике ${random.D12()}`);
+          move: ownTurn((c) => {
+            log(c.G, `✋ ${nameOf(c.G, c.playerID)}: на кубике ${rollD12(c)}`);
           }),
           client: false,
           undoable: false,

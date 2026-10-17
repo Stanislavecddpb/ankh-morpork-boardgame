@@ -41,9 +41,11 @@ function useChangedAreas(G: AMState): AreaId[] {
 }
 
 /** Поле: колесо — зум к курсору, перетаскивание — панорама, двойной клик — сброс. */
-export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
+export function BoardView({ G, highlight, selected, onArea, onDropPiece, rolled = null }: {
   G: AMState; highlight: AreaId[]; selected: AreaId | null;
   onArea: (id: AreaId) => void; onDropPiece: (id: AreaId, piece: DragPiece) => void;
+  /** Район, выпавший на кубике (вспыхивает во время анимации броска). */
+  rolled?: AreaId | null;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState<View>({ x: 0, y: 0, w: W });
@@ -116,7 +118,7 @@ export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
         {AREA_IDS.map((id) => {
           const g = GEO.areas[id];
           if (!g) return null;
-          const cls = ['area', changed.includes(id) ? 'changed' : '', highlight.includes(id) ? 'hl' : '', selected === id ? 'sel' : '', dropTarget === id ? 'drop' : ''].join(' ');
+          const cls = ['area', rolled === id ? 'rolled' : '', changed.includes(id) ? 'changed' : '', highlight.includes(id) ? 'hl' : '', selected === id ? 'sel' : '', dropTarget === id ? 'drop' : ''].join(' ');
           return (
             <polygon key={id} className={cls} points={g.points.map((p) => p.join(',')).join(' ')}
               onClick={() => !wasPanned() && highlight.includes(id) && onArea(id)}

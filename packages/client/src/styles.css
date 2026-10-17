@@ -233,3 +233,21 @@ button:disabled { cursor: default; opacity: 0.5; }
 .memo-box img { max-width: 92vw; max-height: 82vh; border-radius: 8px; }
 .memo-tabs { display: flex; gap: 8px; align-self: stretch; }
 .memo-close { margin-left: auto; }
+
+/* ——— Кубик d12 ——— */
+.dice-overlay { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 8;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; pointer-events: auto; }
+.d12 { width: 150px; height: 150px; filter: drop-shadow(4px 8px 8px #000a); }
+.d12-body { fill: #efe3c4; stroke: #5a3a1c; stroke-width: 2.2; stroke-linejoin: round; }
+.d12-face { fill: #fbf3dc; stroke: #5a3a1c; stroke-width: 2.2; stroke-linejoin: round; }
+.d12-edge { stroke: #5a3a1c; stroke-width: 1.6; }
+.d12-num { font-family: 'FolkardCyr', Georgia, serif; font-size: 26px; fill: #2b1d0e; }
+.d12.spinning { animation: d12-spin 0.45s linear infinite; }
+.d12.landed { animation: d12-land 0.35s ease-out; }
+@keyframes d12-spin { 0% { transform: rotate(0) scale(0.92); } 50% { transform: rotate(180deg) scale(1.05); } 100% { transform: rotate(360deg) scale(0.92); } }
+@keyframes d12-land { 0% { transform: scale(1.25) rotate(-12deg); } 70% { transform: scale(0.95) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+.dice-caption { font-family: 'FolkardCyr', Georgia, serif; font-size: 1.5rem; color: var(--ink); background: #f6e7c1f2;
+  border: 2px solid var(--brown); border-radius: 10px; padding: 4px 14px; box-shadow: 0 6px 20px #0006; }
+.dice-caption span { font-size: 1.1rem; opacity: 0.75; }
+.area.rolled { fill: #ff5a1f55; stroke: #ff3b00; stroke-width: 10; animation: area-rolled 0.6s ease-in-out infinite alternate; }
+@keyframes area-rolled { from { fill: #ff5a1f30; } to { fill: #ff5a1f80; } }

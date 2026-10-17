@@ -148,8 +148,11 @@ describe('отмена', () => {
     const client = started(2, withRincewind);
     client.moves.playCard('rincewind');
     client.moves.drawEvent();
-    const ev = client.getState()!.G.lastEvent;
+    const { lastEvent: ev, eventRolls, dice } = client.getState()!.G;
     expect(ev).not.toBeNull();
+    // Броски события записаны для анимации кубика у всех игроков.
+    expect(dice.values).toEqual(eventRolls);
+    if (eventRolls.length) expect(dice.seq).toBe(1);
     client.undo();
     expect(client.getState()!.G.lastEvent).toBe(ev);
   });
