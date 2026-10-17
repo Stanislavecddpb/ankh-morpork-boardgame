@@ -41,6 +41,8 @@ await click(a, 'button', 'Начать игру');
 await b.waitForSelector('.board', { timeout: 10000 });
 await sleep(1500);
 
+await click(b, '.hand-toggle'); // рука — выдвижная панель, по умолчанию закрыта
+await sleep(300);
 const myHand = await b.evaluate(() => [...document.querySelectorAll('.hand-card img')].map((i) => i.src.split('/').pop().replace('.webp', '')));
 const text = frames.join('\n');
 const leaked = ALL.filter((id) => !myHand.includes(id) && new RegExp(`"${id}"`).test(text));
