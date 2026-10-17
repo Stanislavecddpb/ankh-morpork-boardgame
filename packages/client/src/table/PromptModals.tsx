@@ -45,6 +45,31 @@ export function RespondModal({ G, ctx, me, moves }: { G: AMState; ctx: any; me: 
   );
 }
 
+/** Предложение сыграть прерывание — только пострадавшему. */
+export function OfferModal({ G, me, moves }: { G: AMState; me: string | null; moves: any }) {
+  const o = G.offers[0];
+  if (!o || o.player !== me) return null;
+  const cards = o.relocate ? [o.relocate.card] : [...new Set(o.options.filter((x) => x !== 'none').map((x) => x.split('@')[0]))];
+  const text = o.relocate
+    ? `«${nameOfCard(o.relocate.card)}»: в какой район поставить слугу?`
+    : o.source === 'target'
+      ? 'Вас выбрали целью текста карты. Сыграть прерывание?'
+      : `Ваш${o.losses.length > 1 ? 'их слуг' : 'его слугу'} ${o.losses.some((l) => l.to != null) ? 'убрали или передвинули' : 'убрали'}. Сыграть прерывание?`;
+  return (
+    <div className="popup">
+      <div className="popup-box respond-box offer-box">
+        <div className="offer-cards">{cards.map((c) => <img key={c} className="respond-card" src={cardImg(c)} alt={nameOfCard(c)} />)}</div>
+        <div className="respond-body">
+          <h3>{text}</h3>
+          {o.options.map((x) => (
+            <button key={x} className={`btn ${x === 'none' ? 'ghost' : ''}`} onClick={() => moves.interrupt(x)}>{o.labels[x] ?? x}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Показ скрытого: только тому, кто отвечает. */
 export function RevealModal({ G, me, moves }: { G: AMState; me: string | null; moves: any }) {
   const p = G.prompt;

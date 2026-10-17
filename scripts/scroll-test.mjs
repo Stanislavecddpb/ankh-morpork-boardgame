@@ -45,6 +45,11 @@ for (let s = 0; s < steps; s++) {
   await sleep(60);
   if (await page.$('.gameover')) break;
   if (await click('.handoff button')) { await shot('handoff'); continue; }
+  if (await page.$('.offer-box')) {
+    await shot('offer');
+    await click('.offer-box .respond-body .btn');
+    continue;
+  }
   if (await page.$('.respond-box')) {
     await shot('respond');
     if (await page.$('.respond-body .hand-card')) {

@@ -2,10 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
 import {
   areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
-  legalMinionAreas, parsePiece, pieceName, troubleAreas, AREA_IDS, type AMState, type AreaId, type Target,
+  legalMinionAreas, parsePiece, pieceName, troubleAreas, AREA_IDS, CARD_BY_ID, type AMState, type AreaId, type Target,
 } from '@am/engine';
 import { PromptBar } from './PromptBar';
-import { Handoff, RespondModal, RevealModal, SeatContext } from './PromptModals';
+import { Handoff, OfferModal, RespondModal, RevealModal, SeatContext } from './PromptModals';
 import { Lobby } from './Lobby';
 import { BoardView } from './BoardView';
 import { Hand } from './Hand';
@@ -26,8 +26,9 @@ export function NetBoard(p: BoardProps<AMState>) {
 export function HotseatBoard(p: BoardProps<AMState>) {
   const setSeat = useContext(SeatContext);
   const { G, ctx } = p;
-  const response = !!G.prompt && G.prompt.actor !== ctx.currentPlayer;
-  const desired = ctx.phase === 'lobby' ? '0' : G.prompt?.actor ?? ctx.currentPlayer;
+  const asker = G.offers?.[0]?.player ?? G.prompt?.actor;
+  const response = asker != null && asker !== ctx.currentPlayer;
+  const desired = ctx.phase === 'lobby' ? '0' : asker ?? ctx.currentPlayer;
   const seat = p.playerID ?? ctx.currentPlayer;
   // Обычная смена хода — переключаемся сразу (рука в выдвижной панели, личность рубашкой вверх).
   useEffect(() => { if (setSeat && !response && desired !== seat) setSeat(desired); }, [setSeat, response, desired, seat]);
@@ -130,7 +131,12 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
         <Hand G={G} me={me} open={handOpen || selectHand} setOpen={setHandOpen}
           select={selectHand ? { min: myPrompt!.min ?? 0, max: myPrompt!.max ?? 99, onDone: (cards) => moves.answer(cards) } : undefined}
           canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn}
-          onPlay={(id) => { moves.playCard(id); setHandOpen(false); }} />
+          onPlay={(id) => { moves.playCard(id); setHandOpen(false); }}
+          onInterrupt={(id) => {
+            if (id === 'dr-mossy-lawn' && myTurn) {
+              if (window.confirm('Доктор Мосси Лаун: прервать ход? Сыгранная карта вернётся в руку.')) moves.mossyLawn();
+            } else if (window.confirm(`Сыграть «${CARD_BY_ID[id]?.name}» вне очереди? Эффект выполните вручную (✋).`)) moves.playInterrupt(id);
+          }} />
       </div>
       <aside className="table-side">
         <PlayersPanel G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />
@@ -166,7 +172,8 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       {menuArea != null && manualOn && (
         <ManualAreaMenu G={G} area={menuArea} moves={moves} nameOf={nameOf} onClose={() => setMenuArea(null)} />
       )}
-      <RespondModal G={G} ctx={ctx} me={me} moves={moves} />
+      {G.offers.length === 0 && <RespondModal G={G} ctx={ctx} me={me} moves={moves} />}
+      <OfferModal G={G} me={me} moves={moves} />
       <RevealModal G={G} me={me} moves={moves} />
       <PeekModal G={G} me={me} />
       {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}

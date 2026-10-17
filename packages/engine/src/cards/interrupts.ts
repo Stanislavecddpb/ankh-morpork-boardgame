@@ -38,7 +38,7 @@ function cardsFor(source: Offer['source'], loss: Loss): string[] {
 }
 
 function lossText(l: Loss): string {
-  return l.to == null ? `слуга в районе ${areaName(l.area)}` : `слуга, уведённый ${areaName(l.area)} → ${areaName(l.to)}`;
+  return l.to == null ? `слуга в районе ${areaName(l.area)}` : `слуга, уведённый: ${areaName(l.area)} → ${areaName(l.to)}`;
 }
 
 /** Пересчитать варианты; false — предлагать нечего. */

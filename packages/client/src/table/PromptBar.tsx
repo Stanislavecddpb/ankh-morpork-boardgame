@@ -7,6 +7,11 @@ export function PromptBar({ G, ctx, me, moves, nameOf }: {
 }) {
   const p = G.prompt;
   const sym = currentSymbol(G);
+  const o = G.offers[0];
+  if (o && o.player !== me) {
+    return <div className="prompt-bar"><b>Прерывание</b><span>Ждём ответа: {nameOf(o.player)}…</span></div>;
+  }
+  if (o) return null;
   if (!p && (!G.play || sym?.kind !== 'scroll')) return null;
   const title = p ? effectTitle(p.cardId) : CARD_BY_ID[G.play!.cardId]?.name;
   const myTurn = me === ctx.currentPlayer;

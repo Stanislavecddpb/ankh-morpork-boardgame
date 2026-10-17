@@ -176,3 +176,7 @@ button:disabled { cursor: default; opacity: 0.5; }
 .respond-body { display: flex; flex-direction: column; gap: 8px; min-width: 260px; }
 .respond-body .reveal img, .reveal-box .reveal img { height: 200px; }
 .handoff { background: #1a120bdd; z-index: 40; }
+
+.offer-cards { display: flex; gap: 8px; }
+.offer-box .respond-card { height: min(46vh, 400px); }
+.hand-interrupts { display: flex; flex-direction: column; gap: 6px; align-self: center; margin-left: 8px; }

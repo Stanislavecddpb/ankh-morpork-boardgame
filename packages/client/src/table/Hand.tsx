@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { CARD_BY_ID, HIDDEN_CARD, type AMState } from '@am/engine';
+import { CARD_BY_ID, HIDDEN_CARD, isInterrupt, type AMState } from '@am/engine';
 import { cardImg } from './assets';
 
 /** Рука — выдвижная панель поверх низа поля: закрыта, пока не нужна (и чтобы не подсмотрели). */
-export function Hand({ G, me, open, setOpen, canPlay, onPlay, select }: {
+export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, select }: {
   G: AMState; me: string | null; open: boolean; setOpen: (v: boolean) => void;
   canPlay: boolean; onPlay: (cardId: string) => void;
+  /** Сыграть карту-прерывание вне очереди. */
+  onInterrupt?: (cardId: string) => void;
   /** Режим выбора карт для вопроса свитка. */
   select?: { min: number; max: number; onDone: (cards: string[]) => void };
 }) {
@@ -51,6 +53,13 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay, select }: {
             </button>
           ))}
           {hand.length === 0 && <div className="hand-empty">Рука пуста</div>}
+          {!select && onInterrupt && hand.some(isInterrupt) && (
+            <div className="hand-interrupts">
+              {hand.filter(isInterrupt).map((id) => (
+                <button key={id} className="btn small" onClick={() => onInterrupt(id)}>✋ {CARD_BY_ID[id]?.name}</button>
+              ))}
+            </div>
+          )}
           {select && (
             <div className="hand-select">
               Выбрано {picked.length} из {select.min === select.max ? select.max : `${select.min}–${select.max}`}
