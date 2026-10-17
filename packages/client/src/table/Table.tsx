@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
 import {
   areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
-  legalMinionAreas, troubleAreas, AREA_IDS, type AMState, type AreaId, type Target,
+  legalMinionAreas, parsePiece, pieceName, troubleAreas, AREA_IDS, type AMState, type AreaId, type Target,
 } from '@am/engine';
+import { PromptBar } from './PromptBar';
 import { Lobby } from './Lobby';
 import { BoardView } from './BoardView';
 import { Hand } from './Hand';
@@ -59,7 +60,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   if (myTurn && manualOn) {
     highlight = AREA_IDS;
     onArea = (id) => setMenuArea(id);
-  } else if (myTurn && sym && me && mine) {
+  } else if (myTurn && sym && me && mine && !G.prompt) {
     if (sym.kind === 'minion') {
       if (mine.minionSupply > 0) { highlight = legalMinionAreas(G, me); onArea = (id) => moves.placeMinion(id); }
       else if (from == null) { highlight = areasWithMinionsOf(G, me); onArea = setFrom; }
@@ -76,6 +77,17 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       onArea = (id) => moves.removeTrouble(id);
     }
   }
+
+  // Вопрос свитка важнее символа: подсветка и клики по полю идут в answer.
+  const myPrompt = G.prompt && G.prompt.actor === me ? G.prompt : null;
+  if (myPrompt?.kind === 'area') {
+    highlight = myPrompt.options as AreaId[];
+    onArea = (id) => moves.answer(id);
+  } else if (myPrompt?.kind === 'piece') {
+    highlight = [...new Set(myPrompt.options.map((k) => parsePiece(String(k)).area))];
+    onArea = setMenuArea;
+  }
+  const selectHand = myPrompt?.kind === 'hand' && me === ctx.currentPlayer;
 
   /** Фишка из запаса брошена на район: по символу карты или ручной правкой. */
   function onDropPiece(area: AreaId, piece: DragPiece) {
@@ -97,10 +109,12 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   return (
     <div className="table">
       <div className="table-board">
+        <PromptBar G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />
         <Supply G={G} me={me} manual={myTurn && manualOn} canDrag={canDrag} nameOf={nameOf} />
         <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} onDropPiece={onDropPiece} />
         <Decks G={G} personality={mine?.personality ?? null} flipKey={`${ctx.turn}-${me}`} />
-        <Hand G={G} me={me} open={handOpen} setOpen={setHandOpen}
+        <Hand G={G} me={me} open={handOpen || selectHand} setOpen={setHandOpen}
+          select={selectHand ? { min: myPrompt!.min ?? 0, max: myPrompt!.max ?? 99, onDone: (cards) => moves.answer(cards) } : undefined}
           canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn}
           onPlay={(id) => { moves.playCard(id); setHandOpen(false); }} />
       </div>
@@ -111,7 +125,20 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
         <LogPanel log={G.log} />
       </aside>
 
-      {menuArea != null && !manualOn && sym?.kind === 'assassinate' && me && (
+      {menuArea != null && myPrompt?.kind === 'piece' && (
+        <div className="popup" onClick={() => setMenuArea(null)}>
+          <div className="popup-box" onClick={(e) => e.stopPropagation()}>
+            <h3>{myPrompt.text}</h3>
+            {myPrompt.options.filter((k) => parsePiece(String(k)).area === menuArea).map((k) => (
+              <button key={k} className="btn" onClick={() => { moves.answer(k); setMenuArea(null); }}>
+                {pieceName(G, parsePiece(String(k)))}
+              </button>
+            ))}
+            <button className="btn ghost" onClick={() => setMenuArea(null)}>Отмена</button>
+          </div>
+        </div>
+      )}
+      {menuArea != null && !manualOn && !myPrompt && sym?.kind === 'assassinate' && me && (
         <div className="popup" onClick={() => setMenuArea(null)}>
           <div className="popup-box" onClick={(e) => e.stopPropagation()}>
             <h3>Кого убрать?</h3>

@@ -1,25 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CARD_BY_ID, HIDDEN_CARD, type AMState } from '@am/engine';
 import { cardImg } from './assets';
 
 /** Рука — выдвижная панель поверх низа поля: закрыта, пока не нужна (и чтобы не подсмотрели). */
-export function Hand({ G, me, open, setOpen, canPlay, onPlay }: {
+export function Hand({ G, me, open, setOpen, canPlay, onPlay, select }: {
   G: AMState; me: string | null; open: boolean; setOpen: (v: boolean) => void;
   canPlay: boolean; onPlay: (cardId: string) => void;
+  /** Режим выбора карт для вопроса свитка. */
+  select?: { min: number; max: number; onDone: (cards: string[]) => void };
 }) {
   const hand = (me ? G.players[me]?.hand ?? [] : []).filter((c) => c !== HIDDEN_CARD);
   // Наведённая карта показывается крупно рядом с рукой, чтобы читался текст.
   const [preview, setPreview] = useState<{ id: string; left: number; bottom: number; height: number } | null>(null);
+  const [picked, setPicked] = useState<string[]>([]);
+  useEffect(() => setPicked([]), [select?.min, select?.max, hand.length]);
+
+  function toggle(id: string) {
+    if (!select) return;
+    setPicked((x) => (x.includes(id) ? x.filter((y) => y !== id) : x.length < select.max ? [...x, id] : x));
+  }
+
   return (
     <div className={`hand-drawer ${open ? 'open' : ''}`}>
-      <button className="hand-toggle btn" onClick={() => setOpen(!open)}>
-        🂠 {open ? 'Скрыть руку' : `Рука (${hand.length})`}{!open && canPlay ? ' — ваш ход' : ''}
-      </button>
+      {!select && (
+        <button className="hand-toggle btn" onClick={() => setOpen(!open)}>
+          🂠 {open ? 'Скрыть руку' : `Рука (${hand.length})`}{!open && canPlay ? ' — ваш ход' : ''}
+        </button>
+      )}
       {open && (
         <div className="hand">
           {hand.map((id, i) => (
-            <button key={`${id}-${i}`} className="hand-card" disabled={!canPlay}
-              onClick={() => { setPreview(null); onPlay(id); }}
+            <button key={`${id}-${i}`} className={`hand-card ${picked.includes(id) ? 'picked' : ''}`}
+              disabled={!select && !canPlay}
+              onClick={() => {
+                if (select) toggle(id);
+                else { setPreview(null); onPlay(id); }
+              }}
               onMouseEnter={(e) => {
                 // Над панелью руки, по центру наведённой карты, не выходя за края экрана.
                 const r = e.currentTarget.getBoundingClientRect();
@@ -30,11 +46,17 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay }: {
                 setPreview({ id, left, bottom: window.innerHeight - panelTop + 12, height });
               }}
               onMouseLeave={() => setPreview(null)}
-              title={canPlay ? `Сыграть «${CARD_BY_ID[id]?.name}»` : CARD_BY_ID[id]?.name}>
+              title={select ? 'Выбрать' : canPlay ? `Сыграть «${CARD_BY_ID[id]?.name}»` : CARD_BY_ID[id]?.name}>
               <img src={cardImg(id)} alt={CARD_BY_ID[id]?.name ?? id} />
             </button>
           ))}
           {hand.length === 0 && <div className="hand-empty">Рука пуста</div>}
+          {select && (
+            <div className="hand-select">
+              Выбрано {picked.length} из {select.min === select.max ? select.max : `${select.min}–${select.max}`}
+              <button className="btn" disabled={picked.length < select.min} onClick={() => select.onDone(picked)}>Готово</button>
+            </div>
+          )}
         </div>
       )}
       {open && preview && <img className="card-preview" src={cardImg(preview.id)} alt="" style={{ left: preview.left, bottom: preview.bottom, height: preview.height }} />}

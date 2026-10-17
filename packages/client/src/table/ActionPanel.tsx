@@ -40,12 +40,13 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
             : <>Теперь выберите, куда.</>)}
           {sym.kind === 'assassinate' && 'Выберите район с беспорядком, затем жертву.'}
           {sym.kind === 'removeTrouble' && 'Выберите район с жетоном беспорядка.'}
-          {(sym.kind === 'scroll' || sym.kind === 'interrupt') && 'Выполните текст карты вручную (✋), затем нажмите «Готово».'}
+          {sym.kind === 'scroll' && 'Текст карты — см. подсказку над полем.'}
+          {sym.kind === 'interrupt' && 'Выполните текст карты вручную (✋), затем нажмите «Готово».'}
           <div className="buttons">
             {sym.kind === 'money' && <button className="btn" onClick={() => moves.takeMoney()}>{label(sym)}</button>}
             {sym.kind === 'playAnother' && <button className="btn" onClick={() => moves.playAnother()}>Можно сыграть ещё карту</button>}
             {sym.kind === 'event' && <button className="btn" onClick={() => moves.drawEvent()}>Тянуть событие</button>}
-            {(sym.kind === 'scroll' || sym.kind === 'interrupt') && <button className="btn" onClick={() => moves.skipSymbol()}>Готово</button>}
+            {sym.kind === 'interrupt' && <button className="btn" onClick={() => moves.skipSymbol()}>Готово</button>}
             {sym.kind !== 'event' && sym.kind !== 'scroll' && sym.kind !== 'interrupt' && (
               <button className="btn ghost" onClick={() => moves.skipSymbol()}>Пропустить</button>
             )}

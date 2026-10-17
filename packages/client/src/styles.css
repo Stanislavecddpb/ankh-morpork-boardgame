@@ -158,3 +158,10 @@ button:disabled { cursor: default; opacity: 0.5; }
 .player-front img { height: 46px; border-radius: 3px; transition: transform 0.15s; transform-origin: top left; }
 .player-front img:hover { transform: scale(3.5); position: relative; z-index: 20; }
 .reveal-box { max-width: 900px; }
+
+.prompt-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6; max-width: min(860px, 92%);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 10px;
+  background: #f6e7c1f5; border: 2px solid var(--brown); box-shadow: 0 6px 20px #0006; font-size: 1.05rem; }
+.player-pick { background: #fffaf0; color: var(--ink); border-width: 3px; }
+.hand-card.picked img { outline: 4px solid #2e8b2e; transform: translateY(-14px); }
+.hand-select { align-self: center; display: flex; flex-direction: column; gap: 6px; padding: 0 8px; }
