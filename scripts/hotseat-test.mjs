@@ -44,6 +44,8 @@ async function playFirst() {
 /** Доиграть текущую карту, нажимая «пропустить»-подобные кнопки. */
 async function finishCard() {
   for (let i = 0; i < 10; i++) {
+    if (await click('.prompt-bar button', 'Пропустить')) continue;
+    if (await click('.prompt-bar button', 'Готово')) continue;
     if (await click('.action button', 'Тянуть событие')) continue;
     if (await click('.action button', 'Готово')) continue;
     if (await click('.action button', 'Пропустить')) continue;
@@ -91,6 +93,12 @@ for (let t = 0; t < 6 && !(await page.$('.gameover')); t++) {
   if (await page.$('.gameover')) break;
   await playFirst();
   await finishCard();
+}
+// Победа по личности зависит от раздачи (например, у Ваймса её нет) — тогда объявляем конец вручную.
+if (!(await page.$('.gameover'))) {
+  page.on('dialog', (d) => d.accept());
+  if (!(await page.$('.manual.on'))) await click('.manual button', 'Ручной режим');
+  await click('.manual-row .btn', 'Закончить игру');
 }
 await sleep(500);
 await page.screenshot({ path: `${out}-5.png` });
