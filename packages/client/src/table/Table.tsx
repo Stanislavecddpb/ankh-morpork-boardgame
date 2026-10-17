@@ -11,6 +11,8 @@ import { ActionPanel } from './ActionPanel';
 import { PlayersPanel } from './PlayersPanel';
 import { LogPanel } from './LogPanel';
 import { personalityImg } from './assets';
+import { ManualPanel, ManualAreaMenu } from './ManualPanel';
+import { GameOverPanel } from './GameOverPanel';
 
 interface MatchPlayer { id: number; name?: string }
 
@@ -43,6 +45,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   // Сброс выбора при смене символа или хода.
   const sym = currentSymbol(G);
   useEffect(() => { setFrom(null); setMenuArea(null); }, [sym?.kind, G.play?.queue.length, ctx.turn]);
+  useEffect(() => { setManualOn(false); }, [ctx.turn]);
 
   if (ctx.phase === 'lobby') return <Lobby G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />;
 
@@ -82,6 +85,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       <aside className="table-side">
         <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} />
         <ActionPanel G={G} ctx={ctx} me={me} moves={moves} undo={undo} nameOf={nameOf} from={from} />
+        {myTurn && me && <ManualPanel G={G} me={me} moves={moves} nameOf={nameOf} on={manualOn} setOn={(v) => { setManualOn(v); setMenuArea(null); }} />}
         <LogPanel log={G.log} />
       </aside>
       <footer className="table-foot">
@@ -100,6 +104,10 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
           </div>
         </div>
       )}
+      {menuArea != null && manualOn && (
+        <ManualAreaMenu G={G} area={menuArea} moves={moves} nameOf={nameOf} onClose={() => setMenuArea(null)} />
+      )}
+      {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}
     </div>
   );
 }
