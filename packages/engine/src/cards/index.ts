@@ -5,3 +5,4 @@ import './instant';
 import './hand';
 import './players';
 import './board';
+import './dice';
