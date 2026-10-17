@@ -1,4 +1,5 @@
-// Хотсит на 3 игрока: бот играет карты и отвечает на вопросы свитков через интерфейс.
+// Хотсит на 3 игрока: бот играет карты, жмёт способности районов, тянет события
+// и отвечает на все вопросы через интерфейс.
 // Снимает скриншот первого вопроса каждого вида и собирает ошибки страницы.
 // node scripts/scroll-test.mjs http://localhost:3001 <префикс скриншотов> [шагов]
 import puppeteer from 'puppeteer';
@@ -79,8 +80,14 @@ for (let s = 0; s < steps; s++) {
     continue;
   }
   if (bar && (await click('.prompt-bar .btn'))) continue; // вопрос-кнопки у текущего игрока
+  // Способности районов — иногда.
+  if (Math.random() < 0.3 && (await page.$('.hint.districts .btn'))) {
+    await shot('district');
+    await click('.hint.districts .btn');
+    continue;
+  }
+  if (await click('.action .btn', 'Тянуть событие')) { await sleep(150); await shot('event'); continue; }
   // Обычные символы — пропускаем, событие тянем.
-  if (await click('.action .btn', 'Тянуть событие')) continue;
   if (await click('.action .btn', 'Пропустить')) continue;
   if (await click('.action .btn', 'Взять $')) continue;
   if (await click('.action .btn', 'Можно сыграть ещё карту')) continue;

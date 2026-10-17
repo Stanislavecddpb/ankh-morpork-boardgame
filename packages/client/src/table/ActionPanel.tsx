@@ -1,5 +1,6 @@
-import { CARD_BY_ID, EVENT_BY_ID, canEndTurn, currentSymbol, type AMState, type CardSymbol } from '@am/engine';
-import { cardImg } from './assets';
+import { CARD_BY_ID, EVENT_BY_ID, areaDef, canEndTurn, currentSymbol, usableDistricts, type AMState, type CardSymbol } from '@am/engine';
+import { cardImg, eventImg } from './assets';
+import { DISTRICT_TEXT } from './districtText';
 
 const LABEL: Record<CardSymbol['kind'], string> = {
   minion: 'Поставить слугу', building: 'Построить здание', assassinate: 'Убийство',
@@ -15,6 +16,7 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
 }) {
   const myTurn = me === ctx.currentPlayer && !ctx.gameover;
   const sym = currentSymbol(G);
+  const districts = myTurn ? usableDistricts(G, me!) : [];
 
   return (
     <section className="action">
@@ -28,7 +30,13 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
       )}
 
       {G.lastEvent && (
-        <div className="event">Событие «{EVENT_BY_ID[G.lastEvent]?.name}»: выполните его вручную (✋).</div>
+        <div className="event">
+          <img src={eventImg(G.lastEvent)} alt="" />
+          <div>
+            <b>Событие «{EVENT_BY_ID[G.lastEvent]?.name}»</b>
+            {G.eventRolls.length > 0 && <div>Кубик: {G.eventRolls.map((r) => `${r} (${areaDef(r).name})`).join(', ')}</div>}
+          </div>
+        </div>
       )}
 
       {!myTurn && !ctx.gameover && <div className="hint">Ходит {nameOf(ctx.currentPlayer)}…</div>}
@@ -59,6 +67,19 @@ export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
           {G.playsLeft > 0 ? (G.cardsPlayed === 0 ? 'Сыграйте карту из руки.' : 'Можно сыграть ещё одну карту.') : 'Карты сыграны.'}
           <div className="buttons">
             <button className="btn" disabled={!!canEndTurn(G, me!)} onClick={() => moves.finishTurn()}>Закончить ход</button>
+          </div>
+        </div>
+      )}
+
+      {districts.length > 0 && (
+        <div className="hint districts">
+          Способности районов:
+          <div className="buttons">
+            {districts.map((id) => (
+              <button key={id} className="btn small" title={DISTRICT_TEXT[id]} onClick={() => moves.useDistrict(id)}>
+                {areaDef(id).name}: {DISTRICT_TEXT[id]}
+              </button>
+            ))}
           </div>
         </div>
       )}

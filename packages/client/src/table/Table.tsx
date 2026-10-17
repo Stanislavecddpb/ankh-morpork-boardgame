@@ -133,7 +133,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
           onPlay={(id) => { moves.playCard(id); setHandOpen(false); }} />
       </div>
       <aside className="table-side">
-        <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} />
+        <PlayersPanel G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />
         <ActionPanel G={G} ctx={ctx} me={me} moves={moves} undo={undo} nameOf={nameOf} from={from} />
         {myTurn && me && <ManualPanel G={G} me={me} moves={moves} nameOf={nameOf} on={manualOn} setOn={(v) => { setManualOn(v); setMenuArea(null); }} />}
         <LogPanel log={G.log} />

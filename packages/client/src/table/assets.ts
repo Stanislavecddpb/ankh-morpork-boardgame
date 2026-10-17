@@ -13,6 +13,13 @@ export const eventImg = (id: string) => `/events/${id}.webp`;
 export const personalityImg = (id: PersonalityId) => `/personalities/${id}.webp`;
 export const districtImg = (n: number) => `/districts/${n}.webp`;
 
+/** Картинка источника эффекта по ключу вопроса: карта, `district:N` или `event:<id>`. */
+export function effectImg(key: string): string {
+  if (key.startsWith('district:')) return districtImg(Number(key.slice(9)));
+  if (key.startsWith('event:')) return eventImg(key.slice(6));
+  return cardImg(key);
+}
+
 export const tokenImg = (kind: 'minion' | 'building', color: Color) => `/tokens/${kind}-${color}.webp`;
 export const TROUBLE = '/tokens/trouble.webp';
 export const DEMON = '/tokens/demon.webp';

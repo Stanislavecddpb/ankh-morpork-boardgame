@@ -6,6 +6,7 @@ const REASON = {
   vimes: 'колода закончилась — побеждает Командор Ваймс',
   score: 'победа по очкам',
   manual: 'объявлено вручную',
+  riots: 'бунты: восемь беспорядков — победа по очкам',
 };
 
 export function GameOverPanel({ G, nameOf }: { G: AMState; nameOf: (pid: string) => string }) {

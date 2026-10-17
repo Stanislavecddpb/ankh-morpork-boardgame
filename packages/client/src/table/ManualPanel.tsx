@@ -178,6 +178,12 @@ export function ManualAreaMenu({ G, area, moves, nameOf, onClose }: {
           <button className="btn small" disabled={!a.building} onClick={() => move('building')}>→</button>
         </div>
         <div className="manual-row">
+          <span className="grow">Карточка района: {G.disabledDistricts.includes(area) ? 'отложена' : 'в игре'}</span>
+          <button className="btn small" onClick={() => act({ type: 'toggleDistrict', area })}>
+            {G.disabledDistricts.includes(area) ? 'Вернуть' : 'Отложить'}
+          </button>
+        </div>
+        <div className="manual-row">
           <span className="grow">Беспорядок: {a.trouble ? 'есть' : 'нет'}</span>
           <button className="btn small" onClick={() => act({ type: 'trouble', area, on: !a.trouble })}>{a.trouble ? 'Убрать' : 'Положить'}</button>
           <button className="btn small" disabled={!a.trouble} onClick={() => move('trouble')}>→</button>

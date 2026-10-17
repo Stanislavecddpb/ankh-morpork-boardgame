@@ -1,4 +1,4 @@
-import { CARD_BY_ID, currentSymbol, hasEffect, type AMState } from '@am/engine';
+import { CARD_BY_ID, currentSymbol, effectTitle, hasEffect, type AMState } from '@am/engine';
 import { COLOR_HEX } from './assets';
 
 /** Плашка над полем: что делать сейчас по тексту карты. */
@@ -7,10 +7,10 @@ export function PromptBar({ G, ctx, me, moves, nameOf }: {
 }) {
   const p = G.prompt;
   const sym = currentSymbol(G);
-  if (!G.play || (!p && sym?.kind !== 'scroll')) return null;
-  const card = CARD_BY_ID[G.play.cardId];
+  if (!p && (!G.play || sym?.kind !== 'scroll')) return null;
+  const title = p ? effectTitle(p.cardId) : CARD_BY_ID[G.play!.cardId]?.name;
   const myTurn = me === ctx.currentPlayer;
-  const auto = hasEffect(G.play.cardId);
+  const auto = !!G.play && hasEffect(G.play.cardId);
 
   let body: React.ReactNode;
   if (!p) {
@@ -43,7 +43,7 @@ export function PromptBar({ G, ctx, me, moves, nameOf }: {
 
   return (
     <div className="prompt-bar">
-      <b>«{card?.name}»</b>
+      <b>«{title}»</b>
       {body}
       {myTurn && p && !p.locked && <button className="btn ghost" onClick={() => moves.skipSymbol()}>Пропустить</button>}
     </div>

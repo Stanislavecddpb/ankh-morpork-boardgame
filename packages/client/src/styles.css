@@ -95,6 +95,11 @@ button:disabled { cursor: default; opacity: 0.5; }
 .player-stats { font-size: 0.8rem; opacity: 0.8; }
 .player-districts { display: flex; gap: 3px; margin-top: 3px; }
 .player-districts img { height: 38px; border-radius: 3px; }
+.player-districts .district.off { filter: grayscale(1) brightness(0.7); }
+.player-districts button.district { padding: 0; border: 2px solid #e2b42b; border-radius: 5px; background: none; cursor: pointer; box-shadow: 0 0 6px #e2b42b; line-height: 0; }
+.player-districts button.district:hover { transform: translateY(-2px); }
+.hint.districts .buttons { flex-wrap: wrap; }
+.hint.districts .btn.small { text-align: left; }
 
 .action { display: flex; flex-direction: column; gap: 6px; }
 .piles { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; }

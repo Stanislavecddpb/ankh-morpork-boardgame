@@ -1,6 +1,6 @@
 import { createContext, useState } from 'react';
 import { CARD_BY_ID, PERSONALITY_BY_ID, type AMState, type PersonalityId } from '@am/engine';
-import { cardImg, personalityImg } from './assets';
+import { cardImg, effectImg, personalityImg } from './assets';
 
 /** В хотсите — переключить «сиденье» клиента на игрока. */
 export const SeatContext = createContext<((pid: string) => void) | null>(null);
@@ -19,7 +19,7 @@ export function RespondModal({ G, ctx, me, moves }: { G: AMState; ctx: any; me: 
   return (
     <div className="popup">
       <div className="popup-box respond-box">
-        {G.play && <img className="respond-card" src={cardImg(G.play.cardId)} alt={CARD_BY_ID[G.play.cardId]?.name} />}
+        <img className="respond-card" src={effectImg(p.cardId)} alt="" />
         <div className="respond-body">
           <h3>{p.text}</h3>
           {p.kind === 'choice' && p.options.map((o) => (

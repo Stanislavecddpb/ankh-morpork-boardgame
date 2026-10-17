@@ -66,7 +66,8 @@ for (let k = 0; k < polys.length; k++) {
   await page.evaluate((k) => document.querySelectorAll('.area')[k].dispatchEvent(new MouseEvent('click', { bubbles: true })), k);
   await sleep(120);
   if (k < 8) await click('.popup-box button', 'Положить');
-  await page.evaluate(() => document.querySelectorAll('.popup-box .manual-row')[1].querySelectorAll('button')[0].click());
+  // В запасе 9 слуг — ставим в первые 9 районов.
+  if (k < 9) await page.evaluate(() => document.querySelectorAll('.popup-box .manual-row')[1].querySelectorAll('button')[0].click());
   await sleep(100);
   if (k === 0) await page.screenshot({ path: `${out}-3.png` });
   await click('.popup-box button', 'Закрыть');
