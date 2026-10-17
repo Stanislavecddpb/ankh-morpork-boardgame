@@ -1,5 +1,5 @@
-import { AREA_IDS, areaDef, type AMState } from '@am/engine';
-import { COLOR_HEX, districtImg } from './assets';
+import { AREA_IDS, CARD_BY_ID, areaDef, type AMState } from '@am/engine';
+import { COLOR_HEX, cardImg, districtImg } from './assets';
 
 export function PlayersPanel({ G, ctx, nameOf }: { G: AMState; ctx: any; nameOf: (pid: string) => string }) {
   const order: string[] = Array.from({ length: ctx.numPlayers }, (_, i) => ctx.playOrder[(G.startIndex + i) % ctx.numPlayers]);
@@ -23,6 +23,11 @@ export function PlayersPanel({ G, ctx, nameOf }: { G: AMState; ctx: any; nameOf:
             {districts.length > 0 && (
               <div className="player-districts">
                 {districts.map((id) => <img key={id} src={districtImg(id)} alt={areaDef(id).name} title={areaDef(id).name} />)}
+              </div>
+            )}
+            {p.front.length > 0 && (
+              <div className="player-front">
+                {p.front.map((c) => <img key={c} src={cardImg(c)} alt={CARD_BY_ID[c]?.name} title={CARD_BY_ID[c]?.name} />)}
               </div>
             )}
           </div>

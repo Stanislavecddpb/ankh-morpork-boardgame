@@ -150,3 +150,11 @@ button:disabled { cursor: default; opacity: 0.5; }
 
 .card-preview { position: fixed; z-index: 30; pointer-events: none;
   border-radius: 14px; box-shadow: 0 10px 40px #000a; }
+
+.manual-sec { border-top: 1px solid #6b442333; padding-top: 4px; }
+.manual-sec summary { cursor: pointer; font-weight: 700; font-size: 0.8rem; margin-bottom: 4px; }
+.table-side { overflow-y: auto; }
+.player-front { display: flex; gap: 3px; margin-top: 3px; }
+.player-front img { height: 46px; border-radius: 3px; transition: transform 0.15s; transform-origin: top left; }
+.player-front img:hover { transform: scale(3.5); position: relative; z-index: 20; }
+.reveal-box { max-width: 900px; }

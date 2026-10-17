@@ -4,7 +4,8 @@ import { personalityImg } from './assets';
 const REASON = {
   personality: 'выполнил условие своей личности',
   vimes: 'колода закончилась — побеждает Командор Ваймс',
-  score: 'колода закончилась — победа по очкам',
+  score: 'победа по очкам',
+  manual: 'объявлено вручную',
 };
 
 export function GameOverPanel({ G, nameOf }: { G: AMState; nameOf: (pid: string) => string }) {

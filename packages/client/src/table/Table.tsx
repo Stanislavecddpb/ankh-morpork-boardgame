@@ -10,7 +10,7 @@ import { Hand } from './Hand';
 import { ActionPanel } from './ActionPanel';
 import { PlayersPanel } from './PlayersPanel';
 import { LogPanel } from './LogPanel';
-import { ManualPanel, ManualAreaMenu } from './ManualPanel';
+import { ManualPanel, ManualAreaMenu, PeekModal } from './ManualPanel';
 import { GameOverPanel } from './GameOverPanel';
 import { Supply, type DragPiece } from './Supply';
 import { Decks } from './Decks';
@@ -125,6 +125,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       {menuArea != null && manualOn && (
         <ManualAreaMenu G={G} area={menuArea} moves={moves} nameOf={nameOf} onClose={() => setMenuArea(null)} />
       )}
+      <PeekModal G={G} me={me} />
       {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}
     </div>
   );
