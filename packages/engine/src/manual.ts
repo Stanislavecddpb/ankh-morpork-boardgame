@@ -23,6 +23,7 @@ export type ManualAction =
   | { type: 'fromFront'; player: PlayerID; cardId: string; to: 'discard' | 'hand' }
   | { type: 'returnPlayed' }
   | { type: 'dropEvent' }
+  | { type: 'toggleDistrict'; area: AreaId }
   | { type: 'extraPlay' }
   | { type: 'declareEnd'; winner: PlayerID | null };
 
@@ -198,6 +199,13 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
       if (!G.lastEvent) return 'Нет вытянутого события';
       log(G, `${who}: событие «${EVENT_BY_ID[G.lastEvent]?.name}» убрано из игры`);
       G.lastEvent = null;
+      return null;
+    }
+    case 'toggleDistrict': {
+      if (!G.areas[a.area]) return 'Нет такого района';
+      const off = G.disabledDistricts.includes(a.area);
+      G.disabledDistricts = off ? G.disabledDistricts.filter((x) => x !== a.area) : [...G.disabledDistricts, a.area];
+      log(G, `${who}: карточка «${areaDef(a.area).name}» ${off ? 'возвращена' : 'отложена'}`);
       return null;
     }
     case 'extraPlay': {

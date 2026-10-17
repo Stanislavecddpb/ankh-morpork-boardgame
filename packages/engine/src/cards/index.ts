@@ -7,3 +7,5 @@ import './players';
 import './board';
 import './dice';
 import './respond';
+export * from './districts';
+export * from './events';

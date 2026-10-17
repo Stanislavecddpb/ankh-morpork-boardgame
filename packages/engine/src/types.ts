@@ -66,17 +66,21 @@ export interface CardInPlay {
 
 export interface GameOver {
   winner: PlayerID | null;
-  reason: 'personality' | 'vimes' | 'score' | 'manual';
+  reason: 'personality' | 'vimes' | 'score' | 'manual' | 'riots';
   personalities: Record<PlayerID, PersonalityId>;
   scores?: Record<PlayerID, number>;
 }
 
 export type PromptKind = 'player' | 'area' | 'piece' | 'hand' | 'choice' | 'reveal';
 export type Choice = string | number | string[];
+/** Откуда вопрос: текст карты, способность района или случайное событие. */
+export type PromptOrigin = 'scroll' | 'district' | 'event';
 
 /** Текущий вопрос свитка: кто отвечает и из чего выбирает. */
 export interface Prompt {
+  /** Ключ эффекта: id карты, `district:N` или `event:<id>`. */
   cardId: string;
+  origin: PromptOrigin;
   step: string;
   data: Record<string, any>;
   actor: PlayerID;
@@ -106,8 +110,15 @@ export interface AMState {
   discard: string[];
   /** Колода случайных событий, events[0] — верхняя. */
   events: string[];
-  /** Событие, вытянутое в этом ходу (его эффект выполняется вручную). */
+  /** Событие, вытянутое в этом ходу, и броски кубика при его розыгрыше. */
   lastEvent: string | null;
+  eventRolls: number[];
+  /** Владельцы зданий на начало хода: карточку района нельзя использовать в ход, когда её получили. */
+  startOwners: Record<AreaId, PlayerID | null>;
+  /** Районы, способностью которых уже воспользовались в этот ход. */
+  districtsUsed: AreaId[];
+  /** Карточки районов, отложенные Тупицей Джонсоном (способность больше не работает). */
+  disabledDistricts: AreaId[];
   play: CardInPlay | null;
   /** Сколько ещё карт можно сыграть в этом ходу. */
   playsLeft: number;

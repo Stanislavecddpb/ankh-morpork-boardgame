@@ -1,7 +1,7 @@
 import type { AMState, AreaId, CardSymbol, PlayerID, SymbolKind, Target } from './types';
 import { HAND_SIZE } from './types';
 import { CARD_BY_ID, EVENT_BY_ID, STUCK_CARDS } from './data/cards';
-import { areaDef } from './data/areas';
+import { AREA_IDS, areaDef } from './data/areas';
 import { drawCards, log, nameOf } from './helpers';
 import { assassinate, buildIn, placeMinion, removeTroubleIn } from './rules';
 
@@ -10,6 +10,9 @@ export function startTurn(G: AMState): void {
   G.playsLeft = 1;
   G.cardsPlayed = 0;
   G.lastEvent = null;
+  G.eventRolls = [];
+  G.districtsUsed = [];
+  G.startOwners = Object.fromEntries(AREA_IDS.map((id) => [id, G.areas[id].building]));
   G.peek = null;
   G.prompt = null;
 }
@@ -119,6 +122,14 @@ export function doEvent(G: AMState, pid: PlayerID): string | null {
 }
 
 export function skipSymbol(G: AMState, pid: PlayerID): string | null {
+  // Вопрос способности района: отказ от способности целиком, район снова доступен.
+  if (G.prompt?.origin === 'district') {
+    if (G.prompt.locked) return 'Этот шаг уже нельзя пропустить';
+    const area = Number(G.prompt.cardId.slice(9));
+    G.districtsUsed = G.districtsUsed.filter((a) => a !== area);
+    G.prompt = null;
+    return null;
+  }
   const s = currentSymbol(G);
   if (!s) return 'Нет действия';
   if (s.kind === 'event') return 'Случайное событие нельзя пропустить';

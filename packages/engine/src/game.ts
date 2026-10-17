@@ -4,13 +4,13 @@ import type { AMState, AreaId, Choice, Target } from './types';
 import { applySetColor, applySetName, setupGame } from './setup';
 import { drawCards, log, nameOf } from './helpers';
 import {
-  canEndTurn, doAssassinate, doBuild, doEvent, doMinion, doMoney, doPlayAnother, doRemoveTrouble,
+  canEndTurn, doAssassinate, doBuild, doMinion, doMoney, doPlayAnother, doRemoveTrouble,
   playCard, refillHand, skipSymbol, startTurn,
 } from './turn';
 import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, type ManualAction } from './manual';
 import { allPersonalities, deckOutResult, hasWon } from './victory';
 import { playerView } from './view';
-import { answerPrompt, makeApi, startScroll, type Rnd } from './cards';
+import { answerPrompt, makeApi, startEvent, startScroll, useDistrict, type Rnd } from './cards';
 
 export const GAME_ID = 'ankh-morpork';
 
@@ -94,6 +94,16 @@ export const AnkhMorporkGame: Game<AMState> = {
           client: false,
           undoable: ({ G }: { G: AMState }) => !G.noUndo,
         },
+        // Способность района: может открыть карту из колоды — тогда без отмены.
+        useDistrict: {
+          move: turnOnly((c, area: AreaId) => {
+            const api = apiFor(c);
+            if (useDistrict(api, area)) return INVALID_MOVE;
+            c.G.noUndo = api.locked;
+          }),
+          client: false,
+          undoable: ({ G }: { G: AMState }) => !G.noUndo,
+        },
         // Отвечать может и соперник — поэтому без turnOnly; проверка actor внутри answerPrompt.
         answer: {
           move: (c: any, choice: Choice): any => {
@@ -107,7 +117,7 @@ export const AnkhMorporkGame: Game<AMState> = {
 
         // Открывают скрытое или случайное: только на сервере, отмена через них невозможна.
         drawEvent: {
-          move: turnOnly(({ G, playerID }) => check(doEvent(G, playerID))),
+          move: turnOnly((c) => check(startEvent(apiFor(c)))),
           client: false,
           undoable: false,
         },

@@ -8,7 +8,7 @@ import { COLORS } from './types';
 import { currentSymbol } from './turn';
 import { assassinationAreas, assassinationTargets, buildableAreas, legalMinionAreas, troubleAreas } from './rules';
 import { AREA_IDS } from './data/areas';
-import { defineEffects, effectFor, hasEffect } from './cards';
+import { defineEffects, effectFor, hasEffect, usableDistricts } from './cards';
 
 const testGame: Game<AMState> = { ...AnkhMorporkGame, playerView: undefined };
 
@@ -178,6 +178,7 @@ function rng(seed: number) {
   return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
 }
 
+let used = 0;
 function autoplay(numPlayers: number, seed: number) {
   const client = started(numPlayers, { ...testGame, seed: `seed-${seed}` });
   const r = rng(seed);
@@ -200,6 +201,12 @@ function autoplay(numPlayers: number, seed: number) {
     client.updatePlayerID(ctx.currentPlayer);
     const pid = ctx.currentPlayer;
     const p = G.players[pid];
+    const ds = usableDistricts(G, pid);
+    if (ds.length && r() < 0.5) {
+      client.moves.useDistrict(pick(ds));
+      used++;
+      continue;
+    }
     if (!G.play) {
       if (G.playsLeft > 0 && p.hand.length > 0 && (G.cardsPlayed === 0 || r() < 0.5)) client.moves.playCard(pick(p.hand));
       else client.moves.finishTurn();
@@ -248,9 +255,10 @@ describe('автопартии до конца', () => {
     for (const seed of [1, 2, 3]) {
       it(`${n} игрока, seed ${seed}`, () => {
         const over = autoplay(n, seed);
-        expect(['personality', 'vimes', 'score']).toContain(over.reason);
+        expect(['personality', 'vimes', 'score', 'riots']).toContain(over.reason);
         expect(over.winner).not.toBeNull();
       });
     }
   }
+  it('боты пользовались способностями районов', () => expect(used).toBeGreaterThan(0));
 });

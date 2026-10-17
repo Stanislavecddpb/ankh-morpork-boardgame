@@ -8,8 +8,11 @@ export const VETINARI_AREAS: Record<number, number> = { 2: 11, 3: 10, 4: 9 };
 export const DRAGON_TROUBLE = 8;
 export const CHRYSOPRASE_WORTH = 50;
 
+/** Район с демоном ничего не приносит: ни очков за фишки, ни стоимости здания, ни Ветинари. */
+const haunted = (G: AMState, id: number) => G.areas[id].demons > 0;
+
 export function buildingValue(G: AMState, pid: PlayerID): number {
-  return AREA_IDS.filter((id) => G.areas[id].building === pid).reduce((s, id) => s + areaDef(id).cost, 0);
+  return AREA_IDS.filter((id) => G.areas[id].building === pid && !haunted(G, id)).reduce((s, id) => s + areaDef(id).cost, 0);
 }
 
 export function netWorth(G: AMState, pid: PlayerID): number {
@@ -25,7 +28,7 @@ export function hasWon(G: AMState, pid: PlayerID, numPlayers: number): boolean {
     case 'lord-de-worde':
       return AREA_IDS.filter((id) => controls(G, pid, id)).length >= LORD_AREAS[numPlayers];
     case 'lord-vetinari':
-      return areasWithMinionsOf(G, pid).length >= VETINARI_AREAS[numPlayers];
+      return areasWithMinionsOf(G, pid).filter((id) => !haunted(G, id)).length >= VETINARI_AREAS[numPlayers];
     case 'dragon-king-of-arms':
       return troubleCount(G) >= DRAGON_TROUBLE;
     case 'chrysoprase':
@@ -47,7 +50,7 @@ export function finalScore(G: AMState, pid: PlayerID): number {
     if (money >= LOAN_REPAY) money -= LOAN_REPAY;
     else penalty += UNPAID_LOAN_PENALTY;
   }
-  const minions = AREA_IDS.reduce((s, id) => s + G.areas[id].minions[pid], 0);
+  const minions = AREA_IDS.reduce((s, id) => s + (haunted(G, id) ? 0 : G.areas[id].minions[pid]), 0);
   return minions * 5 + buildingValue(G, pid) + money - penalty;
 }
 

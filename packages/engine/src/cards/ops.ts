@@ -87,7 +87,7 @@ export const cardNames = (cards: string[]) => cards.map((c) => `«${CARD_BY_ID[c
 
 /** Строка лога от имени игрока, разыгрывающего карту. */
 export function say(api: EffectApi, text: string): void {
-  const card = api.G.play ? CARD_BY_ID[api.G.play.cardId]?.name : '';
+  const card = api.title ?? (api.G.play ? CARD_BY_ID[api.G.play.cardId]?.name : '');
   log(api.G, `${card ? `«${card}» — ` : ''}${nameOf(api.G, api.pid)}: ${text}`);
 }
 
