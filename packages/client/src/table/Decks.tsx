@@ -6,7 +6,8 @@ import { BACK_EVENT, BACK_PERSONALITY, BACK_PLAY, eventImg, personalityImg } fro
 export function Decks({ G, personality, flipKey }: { G: AMState; personality: PersonalityId | null; flipKey: string }) {
   // Личность лежит рубашкой вверх; переворачивается кликом и снова закрывается при смене хода/игрока.
   const [shown, setShown] = useState(false);
-  useEffect(() => setShown(false), [flipKey]);
+  const [big, setBig] = useState(false);
+  useEffect(() => { setShown(false); setBig(false); }, [flipKey]);
   const deck = deckSize(G);
   const events = eventsLeft(G);
   return (
@@ -31,13 +32,18 @@ export function Decks({ G, personality, flipKey }: { G: AMState; personality: Pe
       )}
       {personality && (
         <figure className="deck personality-card">
-          <button className={`flip ${shown ? 'shown' : ''}`} onClick={() => setShown(!shown)}
+          <button className={`flip ${shown ? 'shown' : ''}`} onClick={() => { setShown(!shown); setBig(!shown); }}
             title={shown ? 'Скрыть личность' : 'Посмотреть свою личность'}>
             <img src={shown ? personalityImg(personality) : BACK_PERSONALITY}
               alt={shown ? PERSONALITY_BY_ID[personality]?.name : 'Ваша личность (скрыта)'} />
           </button>
           <figcaption>{shown ? 'Ваша личность' : 'Личность · нажмите'}</figcaption>
         </figure>
+      )}
+      {personality && big && (
+        <div className="popup" onClick={() => setBig(false)} title="Нажмите, чтобы закрыть">
+          <img className="big-card" src={personalityImg(personality)} alt={PERSONALITY_BY_ID[personality]?.name} />
+        </div>
       )}
     </aside>
   );

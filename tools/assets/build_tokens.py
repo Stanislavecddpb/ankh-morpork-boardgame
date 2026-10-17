@@ -1,13 +1,13 @@
 """Вырезает жетоны по tokens.json: фон ячейки (цвет угла) и белый делаются прозрачными, края обрезаются.
 
-`turn` — поворот готового жетона против часовой (градусы).
+`turn` — поворот готового жетона против часовой (градусы); `brighten` — во сколько раз осветлить (тёмные цвета на поле).
 """
 import json
 from pathlib import Path
 
 import numpy as np
 import pymupdf
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = ROOT / 'tools' / 'assets'
@@ -31,6 +31,10 @@ for name, t in cfg['tokens'].items():
     alpha = np.where((dist < KEY_DISTANCE) | white, 0, 255).astype(np.uint8)
     img = Image.fromarray(np.dstack([rgb.astype(np.uint8), alpha]), 'RGBA')
     img = img.crop(img.getbbox())
+    if t.get('brighten'):
+        r, g, b, a = img.split()
+        lit = ImageEnhance.Brightness(Image.merge('RGB', (r, g, b))).enhance(t['brighten'])
+        img = Image.merge('RGBA', (*lit.split(), a))
     if t.get('turn'):
         img = img.rotate(t['turn'], expand=True)  # повернуть фигурку «на ноги»
     img.save(OUT / f'{name}.webp', 'WEBP', quality=90)

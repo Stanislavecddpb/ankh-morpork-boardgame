@@ -84,12 +84,17 @@ describe('ручной режим', () => {
     expect(G.discard).not.toContain('fools-guild');
   });
 
-  it('перемещение фишек между районами (без автоматики)', () => {
+  it('перемещение фишек между районами (беспорядки по правилам)', () => {
     const G = fresh();
     expect(applyManual(G, '0', { type: 'movePiece', from: 1, to: 9, piece: 'minion', owner: '1' })).toBeNull();
     expect(G.areas[1].minions['1']).toBe(0);
     expect(G.areas[9].minions['1']).toBe(1);
-    expect(G.areas[1].trouble).toBe(true);
+    expect([G.areas[1].trouble, G.areas[9].trouble]).toEqual([false, false]);
+    expect(applyManual(G, '0', { type: 'movePiece', from: 1, to: 9, piece: 'minion', owner: '2' })).toBeNull();
+    expect(G.areas[9].trouble).toBe(true);
+    expect(applyManual(G, '0', { type: 'minion', area: 9, owner: '2', delta: -1 })).toBeNull();
+    expect(G.areas[9].trouble).toBe(false);
+    G.areas[1].trouble = true;
     expect(applyManual(G, '0', { type: 'movePiece', from: 1, to: 9, piece: 'trouble' })).toBeNull();
     expect([G.areas[1].trouble, G.areas[9].trouble]).toEqual([false, true]);
     expect(applyManual(G, '0', { type: 'movePiece', from: 2, to: 3, piece: 'demon' })).not.toBeNull();

@@ -4,6 +4,7 @@ import { AREA_IDS, areaDef } from './data/areas';
 import { CARD_BY_ID, EVENT_BY_ID } from './data/cards';
 import { log, nameOf } from './helpers';
 import { allPersonalities, scoreResult } from './victory';
+import { troubleEnter, troubleLeave } from './rules';
 
 export type ManualAction =
   | { type: 'minion'; area: AreaId; owner: PlayerID; delta: 1 | -1 }
@@ -42,11 +43,13 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
       if (a.delta > 0) {
         if (owner.minionSupply < 1) return 'Нет слуг в запасе';
         owner.minionSupply--;
+        troubleEnter(area);
         area.minions[a.owner]++;
       } else {
         if (area.minions[a.owner] < 1) return 'Там нет такого слуги';
         area.minions[a.owner]--;
         owner.minionSupply++;
+        troubleLeave(area);
       }
       log(G, `${who}: ${sign(a.delta)}слуга ${nameOf(G, a.owner)}, ${areaDef(a.area).name}`);
       return null;
@@ -80,6 +83,9 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
       const onBoard = AREA_IDS.reduce((s, id) => s + G.areas[id][key], 0);
       if (a.delta > 0 && onBoard >= max) return 'Все такие фишки уже на поле';
       if (a.delta < 0 && area[key] < 1) return 'Здесь их нет';
+      // По правилам: вход в занятый район кладёт беспорядок, уход снимает.
+      if (a.delta > 0) troubleEnter(area);
+      else troubleLeave(area);
       area[key] += a.delta;
       log(G, `${who}: ${sign(a.delta)}${a.type === 'demon' ? 'демон' : 'тролль'}, ${areaDef(a.area).name}`);
       return null;
@@ -135,6 +141,8 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
       if (a.piece === 'minion') {
         if (!a.owner || !(from.minions[a.owner] > 0)) return 'Там нет такого слуги';
         from.minions[a.owner]--;
+        troubleLeave(from);
+        troubleEnter(to);
         to.minions[a.owner]++;
         log(G, `${who}: слуга ${nameOf(G, a.owner)} ${where}`);
       } else if (a.piece === 'building') {
@@ -151,6 +159,8 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
         const key = a.piece === 'demon' ? 'demons' : 'trolls';
         if (from[key] < 1) return 'Там их нет';
         from[key]--;
+        troubleLeave(from);
+        troubleEnter(to);
         to[key]++;
         log(G, `${who}: ${a.piece === 'demon' ? 'демон' : 'тролль'} ${where}`);
       }

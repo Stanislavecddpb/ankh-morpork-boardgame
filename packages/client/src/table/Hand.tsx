@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { CARD_BY_ID, HIDDEN_CARD, isInterrupt, type AMState } from '@am/engine';
 import { cardImg } from './assets';
 
 /** Рука — выдвижная панель поверх низа поля: закрыта, пока не нужна (и чтобы не подсмотрели). */
-export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, select }: {
+export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, districts, select }: {
   G: AMState; me: string | null; open: boolean; setOpen: (v: boolean) => void;
   canPlay: boolean; onPlay: (cardId: string) => void;
   /** Сыграть карту-прерывание вне очереди. */
   onInterrupt?: (cardId: string) => void;
+  /** Вторая выдвижная панель — «Мои районы»: подпись кнопки и содержимое. */
+  districts?: { label: string; glow: boolean; panel: ReactNode };
   /** Режим выбора карт для вопроса свитка. */
   select?: { min: number; max: number; onDone: (cards: string[]) => void };
 }) {
@@ -15,6 +17,10 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, selec
   // Наведённая карта показывается крупно рядом с рукой, чтобы читался текст.
   const [preview, setPreview] = useState<{ id: string; left: number; bottom: number; height: number } | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
+  const [showDistricts, setShowDistricts] = useState(false);
+  useEffect(() => { if (open) setShowDistricts(false); }, [open]);
+  // Способность спрашивает район на поле — панель не должна его закрывать.
+  useEffect(() => { if (G.prompt) setShowDistricts(false); }, [G.prompt]);
   useEffect(() => setPicked([]), [select?.min, select?.max, hand.length]);
 
   function toggle(id: string) {
@@ -25,10 +31,19 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, selec
   return (
     <div className={`hand-drawer ${open ? 'open' : ''}`}>
       {!select && (
-        <button className="hand-toggle btn" onClick={() => setOpen(!open)}>
-          🂠 {open ? 'Скрыть руку' : `Рука (${hand.length})`}{!open && canPlay ? ' — ваш ход' : ''}
-        </button>
+        <div className="drawer-toggles">
+          <button className="hand-toggle btn" onClick={() => setOpen(!open)}>
+            🂠 {open ? 'Скрыть руку' : `Рука (${hand.length})`}{!open && canPlay ? ' — ваш ход' : ''}
+          </button>
+          {districts && (
+            <button className={`hand-toggle btn ${districts.glow && !showDistricts ? 'glow' : ''}`}
+              onClick={() => { setShowDistricts(!showDistricts); setOpen(false); }}>
+              🏛 {showDistricts ? 'Скрыть районы' : districts.label}
+            </button>
+          )}
+        </div>
       )}
+      {showDistricts && !open && districts && <div className="hand districts-panel">{districts.panel}</div>}
       {open && (
         <div className="hand">
           {hand.map((id, i) => (

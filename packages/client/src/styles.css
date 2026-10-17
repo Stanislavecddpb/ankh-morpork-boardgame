@@ -185,3 +185,51 @@ button:disabled { cursor: default; opacity: 0.5; }
 @keyframes area-changed { 50% { fill: #ffffff70; } }
 .prompt-bar .btn.absent { background: #8a3b2a; border-color: #8a3b2a; }
 .page-note.warn { color: #8a3b2a; }
+
+/* ——— Фирменный шрифт: кнопки, имена, заголовки ——— */
+.btn, .player-head b, .prompt-bar b, .log-head, .queue, .controlled b, .district-card b,
+.player-info h2, .player-info h3, .popup-box h2, .popup-box h3, .supply-title, .decks figcaption {
+  font-family: 'FolkardCyr', Georgia, serif; font-weight: 400; letter-spacing: 0.02em;
+}
+.btn { font-size: 1.08rem; }
+.btn.small { font-size: 0.95rem; }
+.player-head b { font-size: 1.25rem; }
+
+/* ——— Нижние панели: рука и «Мои районы» слева, памятка справа ——— */
+.drawer-toggles { display: flex; gap: 8px; }
+.hand-toggle.glow { box-shadow: 0 0 0 3px var(--gold), 0 0 14px var(--gold); }
+.memo-toggle { position: absolute; right: 132px; bottom: 8px; z-index: 5; }
+.districts-panel { align-items: stretch; }
+.districts-body { display: flex; gap: 14px; align-items: flex-start; color: var(--ink); }
+.district-card { margin: 0; display: flex; gap: 10px; width: 330px; background: #fffaf0; border-radius: 8px; padding: 8px; box-shadow: var(--shadow); }
+.district-card img { height: 190px; border-radius: 8px; }
+.district-card figcaption { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.district-card b { font-size: 1.2rem; }
+.district-card i { opacity: 0.75; }
+.district-card.off img { filter: grayscale(1) brightness(0.75); }
+.controlled { display: flex; flex-direction: column; gap: 3px; min-width: 150px; font-size: 0.9rem; }
+.controlled b { font-size: 1.15rem; }
+
+/* ——— Игрок по клику ——— */
+.player { cursor: pointer; }
+.player:hover { background: #fff3dc; }
+.player-info { max-width: min(980px, 94vw); max-height: 90vh; overflow-y: auto; }
+.player-info h2 { margin: 0; font-size: 2rem; }
+.player-info h3 { margin: 8px 0 2px; font-size: 1.3rem; }
+.player-info .reveal { justify-content: flex-start; }
+.player-info .reveal img { height: 230px; }
+.player-info figure.off img { filter: grayscale(1) brightness(0.75); }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tags span { background: #fffaf0; border: 1px solid var(--paper-2); border-radius: 12px; padding: 2px 10px; font-size: 0.9rem; }
+
+/* ——— Журнал: сворачивается ——— */
+.log-head { display: block; width: 100%; text-align: left; border: none; background: none; color: var(--brown); font-size: 1.15rem; padding: 0 0 4px; cursor: pointer; }
+.log.closed { flex: 0 0 auto; }
+.log-last { opacity: 0.75; }
+
+/* ——— Крупная личность и памятка ——— */
+.big-card { height: min(78vh, 760px); border-radius: 16px; box-shadow: 0 10px 40px #000a; cursor: pointer; }
+.memo-box { max-width: 96vw; max-height: 94vh; align-items: center; }
+.memo-box img { max-width: 92vw; max-height: 82vh; border-radius: 8px; }
+.memo-tabs { display: flex; gap: 8px; align-self: stretch; }
+.memo-close { margin-left: auto; }

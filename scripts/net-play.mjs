@@ -84,12 +84,18 @@ for (let k = 1; k < N; k++) {
   await pages[k].waitForSelector('.swatch', { timeout: 10000 });
 }
 await sleep(800);
+// Цвет: по интернету первый клик сразу после входа может уйти до подключения — повторяем, пока не выбран.
 for (let k = 0; k < N; k++) {
-  await pages[k].evaluate((k) => document.querySelector('.seat.me').querySelectorAll('.swatch')[k].click(), k);
-  await sleep(300);
+  for (let t = 0; t < 20 && !(await pages[k].$('.seat.me .swatch.on')); t++) {
+    await pages[k].evaluate((k) => document.querySelector('.seat.me')?.querySelectorAll('.swatch')[k].click(), k);
+    await sleep(500);
+  }
 }
+// По интернету данные о местах и цветах доходят с задержкой: ждём, пока кнопка станет активной.
+await pages[0].waitForFunction(() => [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Начать игру') && !b.disabled), { timeout: 30000 })
+  .catch(async () => { await pages[0].screenshot({ path: `${out}-lobby.png` }); throw new Error('хост не может начать игру — см. скриншот лобби'); });
 await click(pages[0], 'button', 'Начать игру');
-for (const p of pages) await p.waitForSelector('.board', { timeout: 10000 });
+for (const p of pages) await p.waitForSelector('.board', { timeout: 30000 });
 console.log(`партия ${matchID}: ${N} игроков`);
 
 // Первый раз, когда игрок видит окно данного вида, — скриншот его экрана и экранов остальных.
@@ -133,7 +139,12 @@ async function act(page, twice) {
     if (bar && (await click(page, '.prompt-bar .btn'))) return true;
   }
   if (!(await page.$('.action .btn:not(.ghost.undo)'))) return false; // не мой ход
-  if (Math.random() < 0.2 && (await click(page, '.hint.districts .btn'))) return true;
+  // Способность района: кнопка «Мои районы» светится, когда есть что применить.
+  if (Math.random() < 0.2 && (await page.evaluate(() => [...document.querySelectorAll('.hand-toggle')].some((b) => b.classList.contains('glow'))))) {
+    await click(page, '.hand-toggle', 'Мои районы');
+    await sleep(200);
+    if (await click(page, '.district-card .btn', 'Применить')) return true;
+  }
   for (const t of ['Тянуть событие', 'Пропустить', 'Взять $', 'Можно сыграть ещё карту', 'Готово']) {
     if (await click(page, '.action .btn', t, twice)) return true;
   }

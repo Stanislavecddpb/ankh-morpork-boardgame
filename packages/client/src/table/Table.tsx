@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
 import {
-  areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
+  areasWithMinionsOf, assassinationAreas, usableDistricts, assassinationTargets, buildableAreas, currentSymbol,
   legalMinionAreas, parsePiece, pieceName, troubleAreas, AREA_IDS, CARD_BY_ID, type AMState, type AreaId, type Target,
 } from '@am/engine';
 import { PromptBar } from './PromptBar';
@@ -16,6 +16,9 @@ import { ManualPanel, ManualAreaMenu, PeekModal } from './ManualPanel';
 import { GameOverPanel } from './GameOverPanel';
 import { Supply, type DragPiece } from './Supply';
 import { Decks } from './Decks';
+import { DistrictsPanel } from './DistrictsPanel';
+import { PlayerInfo } from './PlayerInfo';
+import { Memo } from './Memo';
 
 interface MatchPlayer { id: number; name?: string }
 
@@ -83,6 +86,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   const [from, setFrom] = useState<AreaId | null>(null);
   const [menuArea, setMenuArea] = useState<AreaId | null>(null);
   const [handOpen, setHandOpen] = useState(false);
+  const [infoFor, setInfoFor] = useState<string | null>(null);
 
   const nameOf = (pid: string) =>
     matchData?.find((m) => String(m.id) === pid)?.name || G.players[pid]?.name || `Игрок ${Number(pid) + 1}`;
@@ -172,10 +176,16 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
             if (id === 'dr-mossy-lawn' && myTurn) {
               if (window.confirm('Доктор Мосси Лаун: прервать ход? Сыгранная карта вернётся в руку.')) moves.mossyLawn();
             } else if (window.confirm(`Сыграть «${CARD_BY_ID[id]?.name}» вне очереди? Эффект выполните вручную (✋).`)) moves.playInterrupt(id);
-          }} />
+          }}
+          districts={me && G.players[me] ? {
+            label: `Мои районы (${AREA_IDS.filter((id) => G.areas[id].building === me).length})`,
+            glow: myTurn && usableDistricts(G, me).length > 0,
+            panel: <DistrictsPanel G={G} me={me} myTurn={myTurn} moves={moves} />,
+          } : undefined} />
+        <Memo />
       </div>
       <aside className="table-side">
-        <PlayersPanel G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />
+        <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} onPick={setInfoFor} />
         <ActionPanel G={G} ctx={ctx} me={me} moves={moves} undo={undo} nameOf={nameOf} from={from} />
         {myTurn && me && <ManualPanel G={G} me={me} moves={moves} nameOf={nameOf} on={manualOn} setOn={(v) => { setManualOn(v); setMenuArea(null); }} />}
         <LogPanel log={G.log} />
@@ -212,6 +222,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       <OfferModal G={G} me={me} moves={moves} />
       <RevealModal G={G} me={me} moves={moves} />
       <PeekModal G={G} me={me} />
+      {infoFor && <PlayerInfo G={G} pid={infoFor} nameOf={nameOf} onClose={() => setInfoFor(null)} />}
       {G.gameover && <GameOverPanel G={G} nameOf={nameOf} />}
     </div>
   );

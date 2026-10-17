@@ -86,9 +86,11 @@ for (let s = 0; s < steps; s++) {
   }
   if (bar && (await click('.prompt-bar .btn'))) continue; // вопрос-кнопки у текущего игрока
   // Способности районов — иногда.
-  if (Math.random() < 0.3 && (await page.$('.hint.districts .btn'))) {
+  if (Math.random() < 0.3 && (await page.evaluate(() => [...document.querySelectorAll('.hand-toggle')].some((b) => b.textContent.includes('Мои районы') && b.classList.contains('glow'))))) {
     await shot('district');
-    await click('.hint.districts .btn');
+    await click('.hand-toggle', 'Мои районы');
+    await sleep(200);
+    await click('.district-card .btn', 'Применить');
     continue;
   }
   if (await click('.action .btn', 'Тянуть событие')) { await sleep(150); await shot('event'); continue; }
