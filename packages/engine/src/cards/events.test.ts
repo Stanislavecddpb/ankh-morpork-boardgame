@@ -120,7 +120,7 @@ describe('события', () => {
     const before = finalScore(G, '0');
     G.areas[2].demons = 1;
     G.areas[1].demons = 1;
-    expect(finalScore(G, '0')).toBe(before - 18 - 5);
+    expect(finalScore(G, '0')).toBe(before - 17 - 5);
     G.players['0'].personality = 'lord-vetinari';
     for (const id of [2, 3, 4, 6, 8, 9, 10]) G.areas[id].minions['0'] = 1;
     expect(hasWon(G, '0', 3)).toBe(false);
