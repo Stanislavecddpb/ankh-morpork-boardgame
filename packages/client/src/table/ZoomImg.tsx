@@ -1,4 +1,5 @@
 import { useState, type ImgHTMLAttributes } from 'react';
+import { createPortal } from 'react-dom';
 
 /**
  * Картинка карты, которая при наведении показывается крупно (как карты в руке):
@@ -19,7 +20,11 @@ export function ZoomImg(props: ImgHTMLAttributes<HTMLImageElement> & { src: stri
           setBox({ left, top, height });
         }}
         onMouseLeave={() => setBox(null)} />
-      {box && <img className="card-preview" src={props.src} alt="" style={{ left: box.left, top: box.top, height: box.height }} />}
+      {/* В body: стили контейнера (например, ширина картинок в колонке колод) не должны искажать превью. */}
+      {box && createPortal(
+        <img className="card-preview" src={props.src} alt="" style={{ left: box.left, top: box.top, height: box.height, width: 'auto' }} />,
+        document.body,
+      )}
     </>
   );
 }
