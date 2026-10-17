@@ -13,6 +13,8 @@ import { LogPanel } from './LogPanel';
 import { personalityImg } from './assets';
 import { ManualPanel, ManualAreaMenu } from './ManualPanel';
 import { GameOverPanel } from './GameOverPanel';
+import { Supply, type DragPiece } from './Supply';
+import { Decks } from './Decks';
 
 interface MatchPlayer { id: number; name?: string }
 
@@ -75,12 +77,29 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
     }
   }
 
+  /** Фишка из запаса брошена на район: по символу карты или ручной правкой. */
+  function onDropPiece(area: AreaId, piece: DragPiece) {
+    if (!myTurn || !me) return;
+    if (manualOn) {
+      if (piece.kind === 'minion') moves.manual({ type: 'minion', area, owner: piece.owner, delta: 1 });
+      else if (piece.kind === 'building') moves.manual({ type: 'building', area, owner: piece.owner });
+      else if (piece.kind === 'trouble') moves.manual({ type: 'trouble', area, on: true });
+      else moves.manual({ type: piece.kind, area, delta: 1 });
+      return;
+    }
+    if (piece.kind === 'minion' && piece.owner === me && sym?.kind === 'minion') moves.placeMinion(area);
+    if (piece.kind === 'building' && piece.owner === me && sym?.kind === 'building') moves.build(area);
+  }
+  const canDrag = myTurn && (sym?.kind === 'minion' || sym?.kind === 'building');
+
   const targetName = (t: Target) => (t.kind === 'minion' ? `Слуга: ${nameOf(t.owner)}` : t.kind === 'demon' ? 'Демон' : 'Тролль');
 
   return (
     <div className="table">
       <div className="table-board">
-        <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} />
+        <Supply G={G} me={me} manual={myTurn && manualOn} canDrag={canDrag} nameOf={nameOf} />
+        <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} onDropPiece={onDropPiece} />
+        <Decks G={G} />
       </div>
       <aside className="table-side">
         <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} />

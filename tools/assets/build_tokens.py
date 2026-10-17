@@ -1,4 +1,7 @@
-"""Вырезает жетоны по tokens.json: фон ячейки (цвет угла) и белый делаются прозрачными, края обрезаются."""
+"""Вырезает жетоны по tokens.json: фон ячейки (цвет угла) и белый делаются прозрачными, края обрезаются.
+
+`turn` — поворот готового жетона против часовой (градусы).
+"""
 import json
 from pathlib import Path
 
@@ -28,6 +31,8 @@ for name, t in cfg['tokens'].items():
     alpha = np.where((dist < KEY_DISTANCE) | white, 0, 255).astype(np.uint8)
     img = Image.fromarray(np.dstack([rgb.astype(np.uint8), alpha]), 'RGBA')
     img = img.crop(img.getbbox())
+    if t.get('turn'):
+        img = img.rotate(t['turn'], expand=True)  # повернуть фигурку «на ноги»
     img.save(OUT / f'{name}.webp', 'WEBP', quality=90)
 
 missing = EXPECTED - set(cfg['tokens'])
