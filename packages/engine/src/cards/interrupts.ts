@@ -164,6 +164,22 @@ export function answerOffer(api: EffectApi, responder: PlayerID, choice: string 
   return null;
 }
 
+/** Игрок отошёл: текущий игрок отвечает за него самым безобидным вариантом. */
+export function answerForAbsent(api: EffectApi): string | null {
+  const { G, pid } = api;
+  const o = G.offers[0];
+  if (o) {
+    if (o.player === pid) return 'Решаете вы сами';
+    log(G, `${nameOf(G, pid)} отвечает за игрока ${nameOf(G, o.player)}: прерывание не играется`);
+    return answerOffer(api, o.player, o.relocate ? o.relocate.options[0] : 'none');
+  }
+  const p = G.prompt;
+  if (!p || p.actor === pid) return 'Некого ждать';
+  const choice = p.kind === 'hand' ? G.players[p.actor].hand.slice(0, p.min ?? 0) : p.options[0];
+  log(G, `${nameOf(G, pid)} отвечает за игрока ${nameOf(G, p.actor)}`);
+  return answerPrompt(api, p.actor, choice as string);
+}
+
 /** Любую карту-прерывание можно сбросить в любой момент (эффект — вручную). */
 export function playInterrupt(G: AMState, pid: PlayerID, card: string): string | null {
   if (!hasCard(G, pid, card) || !isInterrupt(card)) return 'Нет такой карты-прерывания';

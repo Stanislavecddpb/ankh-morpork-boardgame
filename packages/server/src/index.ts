@@ -1,14 +1,17 @@
 import path from 'path';
 import serve from 'koa-static';
-import { Server } from 'boardgame.io/server';
+import { FlatFile, Server } from 'boardgame.io/server';
 import { AnkhMorporkGame } from '@am/engine';
 
 const PORT = Number(process.env.PORT ?? 3001);
+// Партии сохраняются на диск и переживают перезапуск сервера (папка — переменная MATCHES_DIR).
+const MATCHES_DIR = process.env.MATCHES_DIR ?? path.resolve(__dirname, '../../../data/matches');
 
 // Любой источник: сервер раздаёт и клиент, и сокеты, а за туннелем (ngrok) домен произвольный.
 const server = Server({
   games: [AnkhMorporkGame],
   origins: [/.*/],
+  db: new FlatFile({ dir: MATCHES_DIR }),
 });
 
 // Собранный клиент с того же порта → для игры по сети достаточно одного туннеля.

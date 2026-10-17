@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
 import {
   areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
@@ -19,7 +19,40 @@ import { Decks } from './Decks';
 
 interface MatchPlayer { id: number; name?: string }
 
+/** Нужно ли сейчас действие игрока me (ход, вопрос карты, решение о прерывании). */
+function needsMe(G: AMState, ctx: any, me: string | null | undefined): boolean {
+  if (!me || ctx.phase !== 'play' || ctx.gameover) return false;
+  if (G.offers.length) return G.offers[0].player === me;
+  if (G.prompt) return G.prompt.actor === me;
+  return ctx.currentPlayer === me;
+}
+
+function beep(): void {
+  try {
+    const ac = new AudioContext();
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.frequency.value = 660;
+    g.gain.setValueAtTime(0.15, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
+    o.connect(g).connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime + 0.35);
+  } catch { /* без звука */ }
+}
+
+function useYourTurnSignal(need: boolean): void {
+  const was = useRef(false);
+  useEffect(() => {
+    document.title = need ? '● Ваш ход — Анк-Морпорк' : 'Анк-Морпорк';
+    if (need && !was.current && !document.hasFocus()) beep();
+    was.current = need;
+  }, [need]);
+  useEffect(() => () => { document.title = 'Анк-Морпорк'; }, []);
+}
+
 export function NetBoard(p: BoardProps<AMState>) {
+  useYourTurnSignal(needsMe(p.G, p.ctx, p.playerID));
   return <Table G={p.G} ctx={p.ctx} moves={p.moves} undo={p.undo} me={p.playerID} matchData={p.matchData as MatchPlayer[] | undefined} />;
 }
 
@@ -65,7 +98,10 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   useEffect(() => { setFrom(null); setMenuArea(null); }, [sym?.kind, G.play?.queue.length, ctx.turn]);
   useEffect(() => { setManualOn(false); setHandOpen(false); }, [ctx.turn]);
 
-  if (ctx.phase === 'lobby') return <Lobby G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />;
+  if (ctx.phase === 'lobby') {
+    const joined = matchData ? (pid: string) => !!matchData.find((m) => String(m.id) === pid)?.name : undefined;
+    return <Lobby G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} joined={joined} />;
+  }
 
   const myTurn = me === ctx.currentPlayer && !ctx.gameover;
   const mine = me ? G.players[me] : null;

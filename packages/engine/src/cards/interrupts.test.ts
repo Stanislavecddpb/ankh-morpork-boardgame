@@ -3,7 +3,7 @@ import type { AMState } from '../types';
 import { setupGame } from '../setup';
 import { doAssassinate, startTurn } from '../turn';
 import { scenario, noInterrupts } from './testkit';
-import { answerOffer, mossyLawn, offerLosses, playInterrupt, snapshot } from './interrupts';
+import { answerForAbsent, answerOffer, mossyLawn, offerLosses, playInterrupt, snapshot } from './interrupts';
 import { makeApi } from './run';
 import { startEvent } from './events';
 import './index';
@@ -154,5 +154,26 @@ describe('прерывания', () => {
     expect(playInterrupt(G, '2', 'nobby-nobbs')).not.toBeNull();
     expect(playInterrupt(G, '2', 'susan')).toBeNull();
     expect(G.discard).toEqual(['susan']);
+  });
+});
+
+describe('игрок отошёл', () => {
+  it('текущий отвечает за пострадавшего: прерывание не играется', () => {
+    const { G } = assassination('gaspode');
+    const api = makeApi(G, '0', ['0', '1', '2'], { d12: () => 1, shuffle: (a) => a });
+    expect(answerForAbsent(api)).toBeNull();
+    expect(G.offers).toEqual([]);
+    expect(G.players['1'].hand).toContain('gaspode');
+    expect(answerForAbsent(api)).not.toBeNull();
+  });
+
+  it('текущий отвечает за соперника на вопрос карты', () => {
+    const s = scenario('fools-guild');
+    s.start();
+    s.answer('0', '1');
+    expect(s.prompt()).toMatchObject({ actor: '1', options: ['pay', 'take'] });
+    expect(answerForAbsent(makeApi(s.G, '0', ['0', '1', '2'], { d12: () => 1, shuffle: (a) => a }))).toBeNull();
+    expect(s.G.players['1'].money).toBe(5);
+    expect(s.G.log.some((l) => l.includes('отвечает за игрока'))).toBe(true);
   });
 });

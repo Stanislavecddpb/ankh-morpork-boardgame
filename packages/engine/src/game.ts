@@ -11,7 +11,7 @@ import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, typ
 import { allPersonalities, deckOutResult, hasWon } from './victory';
 import { playerView } from './view';
 import {
-  answerOffer, answerPrompt, makeApi, mossyLawn, offerLosses, playInterrupt, snapshot, startEvent, startScroll, useDistrict, type Rnd,
+  answerForAbsent, answerOffer, answerPrompt, makeApi, mossyLawn, offerLosses, playInterrupt, snapshot, startEvent, startScroll, useDistrict, type Rnd,
 } from './cards';
 
 export const GAME_ID = 'ankh-morpork';
@@ -117,6 +117,16 @@ export const AnkhMorporkGame: Game<AMState> = {
             if (answerOffer(api, c.playerID, choice)) return INVALID_MOVE;
             c.G.noUndo = true;
           },
+          client: false,
+          undoable: false,
+        },
+        // Кто-то отошёл и не отвечает: текущий игрок отвечает за него (интерфейс даёт это после паузы).
+        answerFor: {
+          move: ownTurn((c) => {
+            const api = apiFor(c);
+            if (answerForAbsent(api)) return INVALID_MOVE;
+            c.G.noUndo = true;
+          }),
           client: false,
           undoable: false,
         },

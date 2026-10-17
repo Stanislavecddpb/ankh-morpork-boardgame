@@ -180,3 +180,8 @@ button:disabled { cursor: default; opacity: 0.5; }
 .offer-cards { display: flex; gap: 8px; }
 .offer-box .respond-card { height: min(46vh, 400px); }
 .hand-interrupts { display: flex; flex-direction: column; gap: 6px; align-self: center; margin-left: 8px; }
+
+.area.changed { fill: #fff3; stroke: #fff; stroke-width: 7; stroke-dasharray: 28 14; animation: area-changed 1.2s ease-in-out 3; }
+@keyframes area-changed { 50% { fill: #ffffff70; } }
+.prompt-bar .btn.absent { background: #8a3b2a; border-color: #8a3b2a; }
+.page-note.warn { color: #8a3b2a; }

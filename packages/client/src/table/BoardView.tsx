@@ -18,6 +18,28 @@ const PAD = 12; // зазор между фишкой и надписью рай
 
 interface View { x: number; y: number; w: number }
 
+const CHANGED_MS = 4000;
+
+/** Районы, где только что что-то изменилось (фишки, здание, беспорядок), — подсвечиваются на несколько секунд. */
+function useChangedAreas(G: AMState): AreaId[] {
+  const prev = useRef<string[] | null>(null);
+  const [changed, setChanged] = useState<AreaId[]>([]);
+  const key = AREA_IDS.map((id) => JSON.stringify(G.areas[id]));
+  const sig = key.join('|');
+  useEffect(() => {
+    const before = prev.current;
+    prev.current = key;
+    if (!before) return;
+    const ids = AREA_IDS.filter((_, i) => before[i] !== key[i]);
+    if (ids.length === 0) return;
+    setChanged(ids);
+    const t = setTimeout(() => setChanged([]), CHANGED_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+  return changed;
+}
+
 /** Поле: колесо — зум к курсору, перетаскивание — панорама, двойной клик — сброс. */
 export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
   G: AMState; highlight: AreaId[]; selected: AreaId | null;
@@ -29,6 +51,7 @@ export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
   viewRef.current = view;
   const pan = useRef<{ px: number; py: number; view: View; moved: boolean } | null>(null);
   const [dropTarget, setDropTarget] = useState<AreaId | null>(null);
+  const changed = useChangedAreas(G);
   const colorOf = (pid: string): Color => G.players[pid]?.color ?? 'red';
   const h = (view.w * H) / W;
 
@@ -93,7 +116,7 @@ export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
         {AREA_IDS.map((id) => {
           const g = GEO.areas[id];
           if (!g) return null;
-          const cls = ['area', highlight.includes(id) ? 'hl' : '', selected === id ? 'sel' : '', dropTarget === id ? 'drop' : ''].join(' ');
+          const cls = ['area', changed.includes(id) ? 'changed' : '', highlight.includes(id) ? 'hl' : '', selected === id ? 'sel' : '', dropTarget === id ? 'drop' : ''].join(' ');
           return (
             <polygon key={id} className={cls} points={g.points.map((p) => p.join(',')).join(' ')}
               onClick={() => !wasPanned() && highlight.includes(id) && onArea(id)}

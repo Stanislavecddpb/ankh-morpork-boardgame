@@ -10,3 +10,4 @@ source/
 # Превью и временные скриншоты
 tools/assets/preview/
 /*.png
+data/

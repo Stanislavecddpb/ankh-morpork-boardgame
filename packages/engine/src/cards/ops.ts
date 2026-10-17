@@ -103,7 +103,7 @@ export function ask(api: EffectApi, spec: Omit<PromptSpec, 'actor'> & { actor?: 
     return { ...full, options: [], min: Math.min(full.min ?? 0, n), max: Math.min(full.max ?? n, n) };
   }
   if (full.kind !== 'reveal' && full.options.length === 0) {
-    log(api.G, 'Нет подходящих вариантов — часть эффекта пропущена');
+    log(api.G, `${api.title ? `«${api.title}»: ` : ''}нет подходящих вариантов — часть эффекта пропущена`);
     return null;
   }
   return full;

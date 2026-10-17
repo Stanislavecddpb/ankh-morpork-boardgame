@@ -1,5 +1,20 @@
 import { CARD_BY_ID, currentSymbol, effectTitle, hasEffect, type AMState } from '@am/engine';
+import { useEffect, useState } from 'react';
 import { COLOR_HEX } from './assets';
+
+const ABSENT_MS = 30000;
+
+/** true, когда ожидание с этим ключом длится дольше ABSENT_MS. */
+function useWaitedLong(key: string | null): boolean {
+  const [long, setLong] = useState(false);
+  useEffect(() => {
+    setLong(false);
+    if (!key) return;
+    const t = setTimeout(() => setLong(true), ABSENT_MS);
+    return () => clearTimeout(t);
+  }, [key]);
+  return long;
+}
 
 /** Плашка над полем: что делать сейчас по тексту карты. */
 export function PromptBar({ G, ctx, me, moves, nameOf }: {
@@ -8,13 +23,21 @@ export function PromptBar({ G, ctx, me, moves, nameOf }: {
   const p = G.prompt;
   const sym = currentSymbol(G);
   const o = G.offers[0];
+  const myTurn = me === ctx.currentPlayer;
+  // Кого ждёт текущий игрок: решение о прерывании или ответ на вопрос карты.
+  const waitFor = o ? o.player : p && p.actor !== me ? p.actor : null;
+  const waitKey = waitFor && myTurn ? `${ctx.turn}:${waitFor}:${o ? JSON.stringify(o.options) : `${p!.cardId}:${p!.step}`}` : null;
+  const long = useWaitedLong(waitKey);
+  const absent = long && waitFor && (
+    <button className="btn absent" title="Если игрок отошёл: выбрать за него самый безобидный вариант"
+      onClick={() => moves.answerFor()}>Ответить за {nameOf(waitFor)}</button>
+  );
   if (o && o.player !== me) {
-    return <div className="prompt-bar"><b>Прерывание</b><span>Ждём ответа: {nameOf(o.player)}…</span></div>;
+    return <div className="prompt-bar"><b>Прерывание</b><span>Ждём ответа: {nameOf(o.player)}…</span>{absent}</div>;
   }
   if (o) return null;
   if (!p && (!G.play || sym?.kind !== 'scroll')) return null;
   const title = p ? effectTitle(p.cardId) : CARD_BY_ID[G.play!.cardId]?.name;
-  const myTurn = me === ctx.currentPlayer;
   const auto = !!G.play && hasEffect(G.play.cardId);
 
   let body: React.ReactNode;
@@ -27,7 +50,7 @@ export function PromptBar({ G, ctx, me, moves, nameOf }: {
       </>
     ) : <span>{nameOf(ctx.currentPlayer)} разыгрывает текст карты…</span>;
   } else if (p.actor !== me) {
-    body = <span>Ждём ответа: {nameOf(p.actor)}…</span>;
+    body = <><span>Ждём ответа: {nameOf(p.actor)}…</span>{absent}</>;
   } else {
     body = (
       <>
