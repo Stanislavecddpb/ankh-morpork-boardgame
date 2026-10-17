@@ -4,7 +4,9 @@
   "private": true,
   "description": "Браузерная версия настольной игры «Плоский мир: Анк-Морпорк»",
   "workspaces": [
-    "packages/engine"
+    "packages/engine",
+    "packages/server",
+    "packages/client"
   ],
   "scripts": {
     "build": "npm run build -w packages/engine && npm run build -w packages/server && npm run build -w packages/client",
