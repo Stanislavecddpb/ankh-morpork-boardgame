@@ -4,3 +4,4 @@ export * from './data/areas';
 export * from './helpers';
 export * from './setup';
 export * from './rules';
+export * from './victory';
