@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { CARD_BY_ID, EVENT_BY_ID, PERSONALITY_BY_ID, deckSize, eventsLeft, type AMState, type PersonalityId } from '@am/engine';
-import { BACK_EVENT, BACK_PERSONALITY, BACK_PLAY, cardImg, eventImg, personalityImg } from './assets';
+import { EVENT_BY_ID, PERSONALITY_BY_ID, deckSize, eventsLeft, type AMState, type PersonalityId } from '@am/engine';
+import { BACK_EVENT, BACK_PERSONALITY, BACK_PLAY, eventImg, personalityImg } from './assets';
 
-/** Колоды справа от поля, как на реальном столе: игровая и событий рубашкой вверх, сбросы лицом. */
+/** Колоды справа от поля, как на реальном столе: игровая, сброс и события рубашкой вверх. */
 export function Decks({ G, personality, flipKey }: { G: AMState; personality: PersonalityId | null; flipKey: string }) {
   // Личность лежит рубашкой вверх; переворачивается кликом и снова закрывается при смене хода/игрока.
   const [shown, setShown] = useState(false);
   useEffect(() => setShown(false), [flipKey]);
-  const top = G.discard.at(-1);
   const deck = deckSize(G);
   const events = eventsLeft(G);
   return (
@@ -17,7 +16,7 @@ export function Decks({ G, personality, flipKey }: { G: AMState; personality: Pe
         <figcaption>Колода · {deck}</figcaption>
       </figure>
       <figure className="deck">
-        {top ? <img src={cardImg(top)} alt={CARD_BY_ID[top]?.name} title={CARD_BY_ID[top]?.name} /> : <div className="deck-empty" />}
+        {G.discard.length > 0 ? <img src={BACK_PLAY} alt="Сброс" className={G.discard.length > 1 ? 'stack' : ''} /> : <div className="deck-empty" />}
         <figcaption>Сброс · {G.discard.length}</figcaption>
       </figure>
       <figure className="deck">

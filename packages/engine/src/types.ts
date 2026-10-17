@@ -56,6 +56,8 @@ export interface PlayerState {
 export interface CardInPlay {
   cardId: string;
   queue: CardSymbol[];
+  /** Кому карта уйдёт в руку после розыгрыша вместо сброса (Гильдия шутов и т.п.). */
+  giveTo?: PlayerID;
 }
 
 export interface GameOver {

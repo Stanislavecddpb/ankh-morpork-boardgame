@@ -14,7 +14,8 @@ export type ManualAction =
   | { type: 'loan'; player: PlayerID; delta: 1 | -1 }
   | { type: 'discard'; cardId: string }
   | { type: 'give'; cardId: string; to: PlayerID }
-  | { type: 'takeDiscard'; cardId: string };
+  | { type: 'takeDiscard'; cardId: string }
+  | { type: 'givePlayed'; to: PlayerID };
 
 const sign = (d: number) => (d > 0 ? '+' : '−');
 
@@ -114,6 +115,13 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
       hand.splice(i, 1);
       G.players[a.to].hand.push(a.cardId);
       log(G, `${who}: передаёт карту игроку ${nameOf(G, a.to)}`);
+      return null;
+    }
+    case 'givePlayed': {
+      if (!G.play) return 'Сейчас не разыгрывается карта';
+      if (!G.players[a.to] || a.to === pid) return 'Некому передать';
+      G.play.giveTo = a.to;
+      log(G, `${who}: «${CARD_BY_ID[G.play.cardId]?.name ?? G.play.cardId}» после розыгрыша уйдёт в руку игроку ${nameOf(G, a.to)}`);
       return null;
     }
     case 'takeDiscard': {

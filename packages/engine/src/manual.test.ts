@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { setupGame } from './setup';
 import { applyManual } from './manual';
+import { playCard, skipSymbol, startTurn } from './turn';
 
 const fresh = () => setupGame(3, (a) => [...a]);
 
@@ -68,5 +69,18 @@ describe('ручной режим', () => {
     const G = fresh();
     applyManual(G, '0', { type: 'trouble', area: 9, on: true });
     expect(G.log.at(-1)).toContain('✋');
+  });
+
+  it('разыгрываемую карту можно отдать игроку: после розыгрыша она уйдёт ему в руку', () => {
+    const G = fresh();
+    G.players['0'].hand = ['fools-guild'];
+    startTurn(G);
+    expect(applyManual(G, '0', { type: 'givePlayed', to: '1' })).not.toBeNull(); // карта ещё не сыграна
+    playCard(G, '0', 'fools-guild');
+    expect(applyManual(G, '0', { type: 'givePlayed', to: '0' })).not.toBeNull(); // себе нельзя
+    expect(applyManual(G, '0', { type: 'givePlayed', to: '1' })).toBeNull();
+    while (G.play) skipSymbol(G, '0');
+    expect(G.players['1'].hand).toContain('fools-guild');
+    expect(G.discard).not.toContain('fools-guild');
   });
 });

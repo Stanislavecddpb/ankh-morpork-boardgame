@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CARD_BY_ID, HIDDEN_CARD, type AMState } from '@am/engine';
 import { cardImg } from './assets';
 
@@ -7,6 +8,8 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay }: {
   canPlay: boolean; onPlay: (cardId: string) => void;
 }) {
   const hand = (me ? G.players[me]?.hand ?? [] : []).filter((c) => c !== HIDDEN_CARD);
+  // Наведённая карта показывается крупно рядом с рукой, чтобы читался текст.
+  const [preview, setPreview] = useState<{ id: string; left: number; bottom: number; height: number } | null>(null);
   return (
     <div className={`hand-drawer ${open ? 'open' : ''}`}>
       <button className="hand-toggle btn" onClick={() => setOpen(!open)}>
@@ -15,7 +18,18 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay }: {
       {open && (
         <div className="hand">
           {hand.map((id, i) => (
-            <button key={`${id}-${i}`} className="hand-card" disabled={!canPlay} onClick={() => onPlay(id)}
+            <button key={`${id}-${i}`} className="hand-card" disabled={!canPlay}
+              onClick={() => { setPreview(null); onPlay(id); }}
+              onMouseEnter={(e) => {
+                // Над панелью руки, по центру наведённой карты, не выходя за края экрана.
+                const r = e.currentTarget.getBoundingClientRect();
+                const panelTop = e.currentTarget.parentElement!.getBoundingClientRect().top;
+                const height = Math.min(window.innerHeight * 0.62, panelTop - 24);
+                const width = height * 0.632;
+                const left = Math.max(8, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - 8));
+                setPreview({ id, left, bottom: window.innerHeight - panelTop + 12, height });
+              }}
+              onMouseLeave={() => setPreview(null)}
               title={canPlay ? `Сыграть «${CARD_BY_ID[id]?.name}»` : CARD_BY_ID[id]?.name}>
               <img src={cardImg(id)} alt={CARD_BY_ID[id]?.name ?? id} />
             </button>
@@ -23,6 +37,7 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay }: {
           {hand.length === 0 && <div className="hand-empty">Рука пуста</div>}
         </div>
       )}
+      {open && preview && <img className="card-preview" src={cardImg(preview.id)} alt="" style={{ left: preview.left, bottom: preview.bottom, height: preview.height }} />}
     </div>
   );
 }

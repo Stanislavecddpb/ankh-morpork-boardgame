@@ -18,7 +18,8 @@ export function currentSymbol(G: AMState): CardSymbol | undefined {
 
 function finishIfDone(G: AMState): void {
   if (G.play && G.play.queue.length === 0) {
-    G.discard.push(G.play.cardId);
+    if (G.play.giveTo) G.players[G.play.giveTo].hand.push(G.play.cardId);
+    else G.discard.push(G.play.cardId);
     G.play = null;
   }
 }

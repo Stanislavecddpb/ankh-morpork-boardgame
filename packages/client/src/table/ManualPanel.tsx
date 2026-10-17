@@ -49,6 +49,17 @@ export function ManualPanel({ G, me, moves, nameOf, on, setOn }: {
             </select>
             <button className="btn small" disabled={!card} onClick={() => { act({ type: 'give', cardId: card, to: giveTo }); setCard(''); }}>Передать</button>
           </div>
+          {G.play && (
+            <div className="manual-row">
+              «{CARD_BY_ID[G.play.cardId]?.name}» после розыгрыша —
+              <select value={giveTo} onChange={(e) => setGiveTo(e.target.value)}>
+                {pids.filter((p) => p !== me).map((p) => <option key={p} value={p}>{nameOf(p)}</option>)}
+              </select>
+              <button className="btn small" onClick={() => act({ type: 'givePlayed', to: giveTo })}>
+                {G.play.giveTo ? `уйдёт: ${nameOf(G.play.giveTo)}` : 'Отдать в руку'}
+              </button>
+            </div>
+          )}
           <div className="manual-row">
             <select value={fromDiscard} onChange={(e) => setFromDiscard(e.target.value)}>
               <option value="">— карта из сброса —</option>
