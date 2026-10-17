@@ -39,6 +39,7 @@ export function setupGame(numPlayers: number, shuffle: Shuffle): AMState {
       personality: personalities[i],
       minionSupply: MINIONS_PER_PLAYER - START_AREAS.length,
       buildingSupply: BUILDINGS_PER_PLAYER,
+      front: [],
     };
   });
 
@@ -56,6 +57,10 @@ export function setupGame(numPlayers: number, shuffle: Shuffle): AMState {
     cardsPlayed: 0,
     log: [],
     gameover: null,
+    spare: personalities.slice(numPlayers),
+    prompt: null,
+    noUndo: false,
+    peek: null,
   };
 }
 

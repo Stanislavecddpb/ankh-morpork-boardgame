@@ -21,12 +21,12 @@ export function legalMinionAreas(G: AMState, pid: PlayerID): AreaId[] {
 }
 
 /** Вход слугоподобной фишки: беспорядок, если в районе уже кто-то есть. Вызывать ДО добавления фишки. */
-function onEnter(a: AreaState): void {
+export function troubleEnter(a: AreaState): void {
   if (minionLikeCount(a) > 0) a.trouble = true;
 }
 
 /** Уход слугоподобной фишки снимает беспорядок. */
-function onLeave(a: AreaState): void {
+export function troubleLeave(a: AreaState): void {
   a.trouble = false;
 }
 
@@ -36,13 +36,13 @@ export function placeMinion(G: AMState, pid: PlayerID, area: AreaId, from?: Area
   if (p.minionSupply === 0) {
     if (from == null || from === area || !(G.areas[from]?.minions[pid] > 0)) return 'Укажите, откуда переставить слугу';
     G.areas[from].minions[pid]--;
-    onLeave(G.areas[from]);
+    troubleLeave(G.areas[from]);
   } else {
     if (from != null) return 'В запасе есть слуги';
     p.minionSupply--;
   }
   const a = G.areas[area];
-  onEnter(a);
+  troubleEnter(a);
   a.minions[pid]++;
   return null;
 }
@@ -101,7 +101,7 @@ export function removeTarget(G: AMState, area: AreaId, t: Target): void {
   } else {
     a.trolls--;
   }
-  onLeave(a);
+  troubleLeave(a);
 }
 
 export function assassinate(G: AMState, pid: PlayerID, area: AreaId, t: Target): string | null {

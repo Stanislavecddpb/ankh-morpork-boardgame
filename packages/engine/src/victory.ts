@@ -55,15 +55,19 @@ export function bestDistrictCost(G: AMState, pid: PlayerID): number {
   return Math.max(0, ...AREA_IDS.filter((id) => G.areas[id].building === pid).map((id) => areaDef(id).cost));
 }
 
-/** Итог, когда закончилась колода. */
-export function deckOutResult(G: AMState): GameOver {
+/** Победитель по очкам (ничья — дороже район). */
+export function scoreResult(G: AMState): GameOver {
   const pids = Object.keys(G.players);
-  const personalities = allPersonalities(G);
-  const vimes = pids.find((pid) => G.players[pid].personality === 'commander-vimes');
-  if (vimes) return { winner: vimes, reason: 'vimes', personalities };
   const scores = Object.fromEntries(pids.map((pid) => [pid, finalScore(G, pid)]));
   const winner = [...pids].sort(
     (a, b) => scores[b] - scores[a] || bestDistrictCost(G, b) - bestDistrictCost(G, a),
   )[0];
-  return { winner, reason: 'score', personalities, scores };
+  return { winner, reason: 'score', personalities: allPersonalities(G), scores };
+}
+
+/** Итог, когда закончилась колода. */
+export function deckOutResult(G: AMState): GameOver {
+  const vimes = Object.keys(G.players).find((pid) => G.players[pid].personality === 'commander-vimes');
+  if (vimes) return { winner: vimes, reason: 'vimes', personalities: allPersonalities(G) };
+  return scoreResult(G);
 }

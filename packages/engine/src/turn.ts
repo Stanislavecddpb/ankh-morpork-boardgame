@@ -1,6 +1,6 @@
 import type { AMState, AreaId, CardSymbol, PlayerID, SymbolKind, Target } from './types';
 import { HAND_SIZE } from './types';
-import { CARD_BY_ID, EVENT_BY_ID } from './data/cards';
+import { CARD_BY_ID, EVENT_BY_ID, STUCK_CARDS } from './data/cards';
 import { areaDef } from './data/areas';
 import { drawCards, log, nameOf } from './helpers';
 import { assassinate, buildIn, placeMinion, removeTroubleIn } from './rules';
@@ -10,6 +10,8 @@ export function startTurn(G: AMState): void {
   G.playsLeft = 1;
   G.cardsPlayed = 0;
   G.lastEvent = null;
+  G.peek = null;
+  G.prompt = null;
 }
 
 export function currentSymbol(G: AMState): CardSymbol | undefined {
@@ -18,8 +20,10 @@ export function currentSymbol(G: AMState): CardSymbol | undefined {
 
 function finishIfDone(G: AMState): void {
   if (G.play && G.play.queue.length === 0) {
-    if (G.play.giveTo) G.players[G.play.giveTo].hand.push(G.play.cardId);
-    else G.discard.push(G.play.cardId);
+    const { cardId, giveTo, toFront } = G.play;
+    if (toFront) G.players[toFront].front.push(cardId);
+    else if (giveTo) G.players[giveTo].hand.push(cardId);
+    else G.discard.push(cardId);
     G.play = null;
   }
 }
@@ -28,7 +32,8 @@ function expectSymbol(G: AMState, kind: SymbolKind): string | null {
   return currentSymbol(G)?.kind === kind ? null : 'Сейчас другое действие';
 }
 
-function advance(G: AMState): void {
+/** Текущий символ выполнен: перейти к следующему (карта уходит, когда символы кончились). */
+export function advanceSymbol(G: AMState): void {
   G.play!.queue.shift();
   finishIfDone(G);
 }
@@ -52,7 +57,7 @@ export function doMinion(G: AMState, pid: PlayerID, area: AreaId, from?: AreaId)
   const e = expectSymbol(G, 'minion') ?? placeMinion(G, pid, area, from);
   if (e) return e;
   log(G, `${nameOf(G, pid)} ставит слугу: ${areaDef(area).name}`);
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -60,7 +65,7 @@ export function doBuild(G: AMState, pid: PlayerID, area: AreaId, from?: AreaId):
   const e = expectSymbol(G, 'building') ?? buildIn(G, pid, area, from);
   if (e) return e;
   log(G, `${nameOf(G, pid)} строит здание: ${areaDef(area).name} (−$${areaDef(area).cost})`);
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -69,7 +74,7 @@ export function doAssassinate(G: AMState, pid: PlayerID, area: AreaId, target: T
   if (e) return e;
   const victim = target.kind === 'minion' ? `слугу ${nameOf(G, target.owner)}` : target.kind === 'demon' ? 'демона' : 'тролля';
   log(G, `${nameOf(G, pid)} убирает ${victim}: ${areaDef(area).name}`);
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -77,7 +82,7 @@ export function doRemoveTrouble(G: AMState, pid: PlayerID, area: AreaId): string
   const e = expectSymbol(G, 'removeTrouble') ?? removeTroubleIn(G, area);
   if (e) return e;
   log(G, `${nameOf(G, pid)} убирает беспорядок: ${areaDef(area).name}`);
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -87,7 +92,7 @@ export function doMoney(G: AMState, pid: PlayerID): string | null {
   const amount = currentSymbol(G)!.amount ?? 0;
   G.players[pid].money += amount;
   log(G, `${nameOf(G, pid)} берёт из банка $${amount}`);
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -95,7 +100,7 @@ export function doPlayAnother(G: AMState, pid: PlayerID): string | null {
   const e = expectSymbol(G, 'playAnother');
   if (e) return e;
   G.playsLeft++;
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -109,7 +114,7 @@ export function doEvent(G: AMState, pid: PlayerID): string | null {
   } else {
     log(G, 'Случайные события закончились');
   }
-  advance(G);
+  advanceSymbol(G);
   return null;
 }
 
@@ -117,17 +122,22 @@ export function skipSymbol(G: AMState, pid: PlayerID): string | null {
   const s = currentSymbol(G);
   if (!s) return 'Нет действия';
   if (s.kind === 'event') return 'Случайное событие нельзя пропустить';
-  advance(G);
+  if (G.prompt?.locked) return 'Этот шаг уже нельзя пропустить';
+  G.prompt = null;
+  advanceSymbol(G);
   return null;
 }
 
 export function canEndTurn(G: AMState, pid: PlayerID): string | null {
+  if (G.prompt) return 'Сначала ответьте на вопрос карты';
   if (G.play) return 'Сначала доиграйте карту';
   if (G.cardsPlayed === 0 && G.players[pid].hand.length > 0) return 'Сначала сыграйте карту';
   return null;
 }
 
 export function refillHand(G: AMState, pid: PlayerID): void {
-  const need = HAND_SIZE - G.players[pid].hand.length;
+  const p = G.players[pid];
+  const stuck = p.front.filter((c) => STUCK_CARDS.includes(c)).length;
+  const need = HAND_SIZE - p.hand.length - stuck;
   if (need > 0) drawCards(G, pid, need);
 }

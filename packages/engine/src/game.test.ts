@@ -45,6 +45,17 @@ describe('лобби', () => {
   });
 });
 
+describe('чужой ход', () => {
+  it('не текущий игрок не может играть карты', () => {
+    const client = started(2);
+    const { G, ctx } = client.getState()!;
+    const other = ctx.currentPlayer === '0' ? '1' : '0';
+    client.updatePlayerID(other);
+    client.moves.playCard(G.players[other].hand[0]);
+    expect(client.getState()!.G.play).toBeNull();
+  });
+});
+
 describe('скрытая информация', () => {
   it('чужие руки и личности скрыты, колоды — только размер', () => {
     const client = started(3);

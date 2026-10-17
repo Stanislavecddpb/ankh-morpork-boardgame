@@ -50,21 +50,49 @@ export interface PlayerState {
   personality: PersonalityId | null;
   minionSupply: number;
   buildingSupply: number;
+  /** Карты, лежащие перед игроком (видны всем): Банк, Мистер Бент, Гильдия шутов… */
+  front: string[];
 }
 
 /** Карта, которую сейчас разыгрывают: оставшиеся символы слева направо. */
 export interface CardInPlay {
   cardId: string;
   queue: CardSymbol[];
-  /** Кому карта уйдёт в руку после розыгрыша вместо сброса (Гильдия шутов и т.п.). */
+  /** Кому карта уйдёт в руку после розыгрыша вместо сброса. */
   giveTo?: PlayerID;
+  /** Перед кем карта ляжет после розыгрыша (зона front). */
+  toFront?: PlayerID;
 }
 
 export interface GameOver {
   winner: PlayerID | null;
-  reason: 'personality' | 'vimes' | 'score';
+  reason: 'personality' | 'vimes' | 'score' | 'manual';
   personalities: Record<PlayerID, PersonalityId>;
   scores?: Record<PlayerID, number>;
+}
+
+export type PromptKind = 'player' | 'area' | 'piece' | 'hand' | 'choice' | 'reveal';
+export type Choice = string | number | string[];
+
+/** Текущий вопрос свитка: кто отвечает и из чего выбирает. */
+export interface Prompt {
+  cardId: string;
+  step: string;
+  data: Record<string, any>;
+  actor: PlayerID;
+  kind: PromptKind;
+  /** player: id игроков; area: номера районов; piece: ключи фишек; choice: ключи кнопок; reveal: id карт. */
+  options: (string | number)[];
+  /** Подписи кнопок для choice. */
+  labels?: Record<string, string>;
+  /** Для hand: сколько карт выбрать. */
+  min?: number;
+  max?: number;
+  text: string;
+  /** Скрытые карты/личности, видимые только actor. */
+  reveal?: string[];
+  /** Шаг открыл скрытое или случайное: пропустить и отменить нельзя. */
+  locked?: boolean;
 }
 
 export interface AMState {
@@ -86,9 +114,17 @@ export interface AMState {
   cardsPlayed: number;
   log: string[];
   gameover: GameOver | null;
+  /** Неиспользованные личности (скрыты). */
+  spare: PersonalityId[];
+  prompt: Prompt | null;
+  /** Последний ход свитка открыл скрытое/случайное — его нельзя отменить. */
+  noUndo: boolean;
+  /** Ручной просмотр неиспользованных личностей: виден только player. */
+  peek: { player: PlayerID; cards: string[] } | null;
   /** Только в playerView: размеры скрытых колод. */
   deckCount?: number;
   eventsCount?: number;
+  spareCount?: number;
 }
 
 /** Цель убийства в районе. */

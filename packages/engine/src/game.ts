@@ -1,5 +1,5 @@
 import type { Game } from 'boardgame.io';
-import { INVALID_MOVE } from 'boardgame.io/core';
+import { ActivePlayers, INVALID_MOVE } from 'boardgame.io/core';
 import type { AMState, AreaId, Target } from './types';
 import { applySetColor, applySetName, setupGame } from './setup';
 import { drawCards, log, nameOf } from './helpers';
@@ -7,13 +7,17 @@ import {
   canEndTurn, doAssassinate, doBuild, doEvent, doMinion, doMoney, doPlayAnother, doRemoveTrouble,
   playCard, refillHand, skipSymbol, startTurn,
 } from './turn';
-import { applyManual, type ManualAction } from './manual';
+import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, type ManualAction } from './manual';
 import { allPersonalities, deckOutResult, hasWon } from './victory';
 import { playerView } from './view';
 
 export const GAME_ID = 'ankh-morpork';
 
 const check = (error: string | null) => (error ? INVALID_MOVE : undefined);
+
+/** В фазе play активны все (чтобы соперник мог отвечать); ходить может только текущий игрок. */
+const turnOnly = <A extends unknown[]>(fn: (c: any, ...args: A) => any) =>
+  (c: any, ...args: A): any => (c.playerID === c.ctx.currentPlayer ? fn(c, ...args) : INVALID_MOVE);
 
 export const AnkhMorporkGame: Game<AMState> = {
   name: GAME_ID,
@@ -47,6 +51,7 @@ export const AnkhMorporkGame: Game<AMState> = {
 
     play: {
       turn: {
+        activePlayers: ActivePlayers.ALL,
         order: {
           first: ({ G }) => G.startIndex,
           next: ({ ctx }) => (ctx.playOrderPos + 1) % ctx.numPlayers,
@@ -63,32 +68,72 @@ export const AnkhMorporkGame: Game<AMState> = {
         },
       },
       moves: {
-        playCard: ({ G, playerID }, cardId: string) => check(playCard(G, playerID, cardId)),
-        placeMinion: ({ G, playerID }, area: AreaId, from?: AreaId) => check(doMinion(G, playerID, area, from)),
-        build: ({ G, playerID }, area: AreaId, from?: AreaId) => check(doBuild(G, playerID, area, from)),
-        assassinate: ({ G, playerID }, area: AreaId, target: Target) => check(doAssassinate(G, playerID, area, target)),
-        removeTrouble: ({ G, playerID }, area: AreaId) => check(doRemoveTrouble(G, playerID, area)),
-        takeMoney: ({ G, playerID }) => check(doMoney(G, playerID)),
-        playAnother: ({ G, playerID }) => check(doPlayAnother(G, playerID)),
-        skipSymbol: ({ G, playerID }) => check(skipSymbol(G, playerID)),
-        manual: ({ G, playerID }, action: ManualAction) => check(applyManual(G, playerID, action)),
+        playCard: turnOnly(({ G, playerID }, cardId: string) => check(playCard(G, playerID, cardId))),
+        placeMinion: turnOnly(({ G, playerID }, area: AreaId, from?: AreaId) => check(doMinion(G, playerID, area, from))),
+        build: turnOnly(({ G, playerID }, area: AreaId, from?: AreaId) => check(doBuild(G, playerID, area, from))),
+        assassinate: turnOnly(({ G, playerID }, area: AreaId, target: Target) => check(doAssassinate(G, playerID, area, target))),
+        removeTrouble: turnOnly(({ G, playerID }, area: AreaId) => check(doRemoveTrouble(G, playerID, area))),
+        takeMoney: turnOnly(({ G, playerID }) => check(doMoney(G, playerID))),
+        playAnother: turnOnly(({ G, playerID }) => check(doPlayAnother(G, playerID))),
+        skipSymbol: turnOnly(({ G, playerID }) => check(skipSymbol(G, playerID))),
+        manual: turnOnly(({ G, playerID }, action: ManualAction) => check(applyManual(G, playerID, action))),
 
-        // Открывают скрытое: только на сервере, отмена через них невозможна.
+        // Открывают скрытое или случайное: только на сервере, отмена через них невозможна.
         drawEvent: {
-          move: ({ G, playerID }) => check(doEvent(G, playerID)),
+          move: turnOnly(({ G, playerID }) => check(doEvent(G, playerID))),
           client: false,
           undoable: false,
         },
         manualDraw: {
-          move: ({ G, playerID }) => {
+          move: turnOnly(({ G, playerID }) => {
             if (drawCards(G, playerID, 1) === 0) return INVALID_MOVE;
             log(G, `✋ ${nameOf(G, playerID)}: берёт карту из колоды`);
-          },
+          }),
+          client: false,
+          undoable: false,
+        },
+        manualTakeRandom: {
+          move: turnOnly(({ G, playerID, random }, from: string) => check(takeRandomCard(G, playerID, from, random.Shuffle))),
+          client: false,
+          undoable: false,
+        },
+        manualEventBack: {
+          move: turnOnly(({ G, playerID, random }, where: 'top' | 'shuffle') => check(eventBack(G, playerID, where, random.Shuffle))),
+          client: false,
+          undoable: false,
+        },
+        manualSwapPersonality: {
+          move: turnOnly(({ G, playerID, random }) => check(swapPersonality(G, playerID, random.Shuffle))),
+          client: false,
+          undoable: false,
+        },
+        manualPeekSpare: {
+          move: turnOnly(({ G, playerID }) => check(peekSpare(G, playerID))),
+          client: false,
+          undoable: false,
+        },
+        manualRoll: {
+          move: turnOnly(({ G, playerID, random }) => {
+            log(G, `✋ ${nameOf(G, playerID)}: на кубике ${random.D12()}`);
+          }),
+          client: false,
+          undoable: false,
+        },
+        manualEndTurn: {
+          move: turnOnly(({ G, playerID, events }) => {
+            if (G.play) {
+              G.discard.push(G.play.cardId);
+              G.play = null;
+            }
+            G.prompt = null;
+            log(G, `✋ ${nameOf(G, playerID)}: заканчивает ход без добора`);
+            events.endTurn();
+          }),
           client: false,
           undoable: false,
         },
         finishTurn: {
-          move: ({ G, playerID, events }) => {
+          move: turnOnly(({ G, playerID, events }) => {
             if (canEndTurn(G, playerID)) return INVALID_MOVE;
             refillHand(G, playerID);
             if (G.deck.length === 0) {
@@ -97,7 +142,7 @@ export const AnkhMorporkGame: Game<AMState> = {
               return;
             }
             events.endTurn();
-          },
+          }),
           client: false,
           undoable: false,
         },

@@ -26,3 +26,6 @@ export const EVENT_BY_ID: Record<string, NamedDef> = Object.fromEntries(EVENTS.m
 /** Правило игры вдвоём. */
 export const TWO_PLAYER_REMOVED_CARDS = ['hubert', 'cosmo-lavish'];
 export const TWO_PLAYER_REMOVED_PERSONALITY: PersonalityId = 'chrysoprase';
+
+/** Карты, которые после розыгрыша лежат «перед игроком» и занимают место в руке при доборе. */
+export const STUCK_CARDS = ['fools-guild', 'drwhiteface'];
