@@ -1,0 +1,1519 @@
+{
+ "cards": [
+  {
+   "id": "drumknott",
+   "deck": "green",
+   "name": "Драмнотт",
+   "nameEn": "Drumknott",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "duckman",
+   "deck": "green",
+   "name": "Утка-на-голове",
+   "nameEn": "Duckman",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "fresh-start-club",
+   "deck": "green",
+   "name": "Клуб \"Начни заново\"",
+   "nameEn": "Fresh Start club",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "gaspode",
+   "deck": "green",
+   "name": "Гаспод",
+   "nameEn": "Gaspode",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "groat",
+   "deck": "green",
+   "name": "Грош",
+   "nameEn": "Groat",
+   "symbols": [
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "leonard-of-quirm",
+   "deck": "green",
+   "name": "Леонард из Квирма",
+   "nameEn": "Leonard of Quirm",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "librarian",
+   "deck": "green",
+   "name": "Библиотекарь",
+   "nameEn": "Librarian",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "wallace-sonky",
+   "deck": "green",
+   "name": "Уоллис Сонки",
+   "nameEn": "Wallace Sonky",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "dysk",
+   "deck": "green",
+   "name": "\"Дискъ\"",
+   "nameEn": "\"Dysk\"",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "ankh-morpork-sunshine-dragon-sanctuary",
+   "deck": "green",
+   "name": "Санаторий для больных драконов \"Солнечный свет\"",
+   "nameEn": "Ankh-Morpork Sunshine Dragon Sanctuary",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "beggars-guild",
+   "deck": "green",
+   "name": "Гильдия Нищих",
+   "nameEn": "Beggars' guild",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "cmot-dibbler",
+   "deck": "green",
+   "name": "Себя  Режу без Ножа Дибблер",
+   "nameEn": "C.M.O.T. Dibbler",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "drcruces",
+   "deck": "green",
+   "name": "Доктор Крусез",
+   "nameEn": "Dr.Cruces",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 3
+    }
+   ]
+  },
+  {
+   "id": "drwhiteface",
+   "deck": "green",
+   "name": "Доктор Уайтфейс",
+   "nameEn": "Dr.Whiteface",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "fire-brigade",
+   "deck": "green",
+   "name": "Пожарная бригада",
+   "nameEn": "Fire Brigade",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "fools-guild",
+   "deck": "green",
+   "name": "Гильдия Шутов",
+   "nameEn": "Fools Guild",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "foul-ole-ron",
+   "deck": "green",
+   "name": "Гадкий Старый Рон",
+   "nameEn": "Foul Ole Ron",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "gimlets-hole-food-delicatessen",
+   "deck": "green",
+   "name": "Гномские деликатесы Буравчика",
+   "nameEn": "Gimlet's Hole Food Delicatessen",
+   "symbols": [
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "hargas-house-of-ribs",
+   "deck": "green",
+   "name": "Рёбрышки от Харги",
+   "nameEn": "Harga's house of ribs",
+   "symbols": [
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "harry-king",
+   "deck": "green",
+   "name": "Гарри Король",
+   "nameEn": "Harry King",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "herennow",
+   "deck": "green",
+   "name": "Здесь-и-Сейчас",
+   "nameEn": "Here'n'Now",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "hex",
+   "deck": "green",
+   "name": "Гекс",
+   "nameEn": "Hex",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "history-monks",
+   "deck": "green",
+   "name": "Исторические монахи",
+   "nameEn": "History Monks",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "inigo-skimmer",
+   "deck": "green",
+   "name": "Иниго Скиммер",
+   "nameEn": "Inigo Skimmer",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 2
+    }
+   ]
+  },
+  {
+   "id": "mended-drum",
+   "deck": "green",
+   "name": "\"Штопаный барабан\"",
+   "nameEn": "Mended Drum",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "money",
+     "amount": 2
+    }
+   ]
+  },
+  {
+   "id": "modo",
+   "deck": "green",
+   "name": "Модо",
+   "nameEn": "Modo",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "mr-bent",
+   "deck": "green",
+   "name": "Мистер Бент",
+   "nameEn": "Mr. Bent",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "mr-boggis",
+   "deck": "green",
+   "name": "Мистер Боггис",
+   "nameEn": "Mr. Boggis",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "mr-gryle",
+   "deck": "green",
+   "name": "Мистер Грыль",
+   "nameEn": "Mr. Gryle",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 1
+    }
+   ]
+  },
+  {
+   "id": "mr-pin-and-mr-tulip",
+   "deck": "green",
+   "name": "Мистер Пин и мистер Тьюлип",
+   "nameEn": "Mr. Pin and Mr. Tulip",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 1
+    }
+   ]
+  },
+  {
+   "id": "nobby-nobbs",
+   "deck": "green",
+   "name": "Нобби Ноббс",
+   "nameEn": "Nobby Nobbs",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "opera-house",
+   "deck": "green",
+   "name": "Оперный театр",
+   "nameEn": "Opera House",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "pink-pussycat-club",
+   "deck": "green",
+   "name": "Клуб \"Розовая Кошечка\"",
+   "nameEn": "Pink Pussycat club",
+   "symbols": [
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "queen-molly",
+   "deck": "green",
+   "name": "Королева Молли",
+   "nameEn": "Queen Molly",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "rosie-palm",
+   "deck": "green",
+   "name": "Розмари Палм",
+   "nameEn": "Rosie Palm",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "sacharissa-cripslock",
+   "deck": "green",
+   "name": "Сакарисса Крипслок",
+   "nameEn": "Sacharissa Cripslock",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "seamstresses-guild",
+   "deck": "green",
+   "name": "Гильдия Белошвеек",
+   "nameEn": "Seamstresses' Guild",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "sgt-angua",
+   "deck": "green",
+   "name": "Сержант Ангуа",
+   "nameEn": "sgt Angua",
+   "symbols": [
+    {
+     "kind": "removeTrouble"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "shonky-shop",
+   "deck": "green",
+   "name": "Магазинчик",
+   "nameEn": "Shonky Shop",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "the-bank-of-ankh-morpork",
+   "deck": "green",
+   "name": "Банк Анкх-Морпорка",
+   "nameEn": "The Bank of Ankh-Morpork",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "the-royal-mint",
+   "deck": "green",
+   "name": "Монетный Двор",
+   "nameEn": "The Royal Mint",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "money",
+     "amount": 5
+    }
+   ]
+  },
+  {
+   "id": "thieves-guild",
+   "deck": "green",
+   "name": "Гильдия Воров",
+   "nameEn": "Thieves guild",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "zorgo-the-retrophrenologist",
+   "deck": "green",
+   "name": "Зорго Ретрофренолог",
+   "nameEn": "Zorgo the Retrophrenologist",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "agony-aunts",
+   "deck": "green",
+   "name": "Добрые тётушки",
+   "nameEn": "Agony Aunts",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 2
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "captain-carrot",
+   "deck": "green",
+   "name": "Капитан Кэррот",
+   "nameEn": "Captain Carrot",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "removeTrouble"
+    },
+    {
+     "kind": "money",
+     "amount": 1
+    }
+   ]
+  },
+  {
+   "id": "mrs-cake",
+   "deck": "green",
+   "name": "Миссис Кейк",
+   "nameEn": "Mrs. Cake",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "money",
+     "amount": 2
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "rincewind",
+   "deck": "green",
+   "name": "Ринсвинд",
+   "nameEn": "Rincewind",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "the-peeled-nuts",
+   "deck": "green",
+   "name": "Сдвинутые Взад",
+   "nameEn": "The Peeled Nuts",
+   "symbols": []
+  },
+  {
+   "id": "auditors",
+   "deck": "brown",
+   "name": "Аудиторы",
+   "nameEn": "Auditors",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "buggy-swires",
+   "deck": "brown",
+   "name": "Багги Свирс",
+   "nameEn": "Buggy Swires",
+   "symbols": [
+    {
+     "kind": "removeTrouble"
+    }
+   ]
+  },
+  {
+   "id": "dr-mossy-lawn",
+   "deck": "brown",
+   "name": "Доктор Лаун",
+   "nameEn": "Dr Mossy Lawn",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "igor",
+   "deck": "brown",
+   "name": "Игорь",
+   "nameEn": "Igor",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "mr-shine",
+   "deck": "brown",
+   "name": "Мистер Сияющий",
+   "nameEn": "Mr Shine",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "reacher-gilt",
+   "deck": "brown",
+   "name": "Ричер Гилт",
+   "nameEn": "Reacher Gilt",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "susan",
+   "deck": "brown",
+   "name": "Сьюзан",
+   "nameEn": "Susan",
+   "symbols": [
+    {
+     "kind": "interrupt"
+    }
+   ]
+  },
+  {
+   "id": "wee-mad-arthur",
+   "deck": "brown",
+   "name": "Крошка Безумный Артур",
+   "nameEn": "Wee Mad Arthur",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "willikins",
+   "deck": "brown",
+   "name": "Вилликинс",
+   "nameEn": "Willikins",
+   "symbols": [
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "alchemist-guild",
+   "deck": "brown",
+   "name": "Гильдия Алхимиков",
+   "nameEn": "Alchemist guild",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "archchancellor-ridcully",
+   "deck": "brown",
+   "name": "Архиканцлер Ридкулли",
+   "nameEn": "Archchancellor Ridcully",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "burleigh-and-stronginthearm",
+   "deck": "brown",
+   "name": "\"Бёрли и Стронг де-Арм\"",
+   "nameEn": "Burleigh and Stronginthearm",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "cable-street-particulars",
+   "deck": "brown",
+   "name": "Особисты с Кейбл-стрит",
+   "nameEn": "Cable Street Particulars",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "canting-crew",
+   "deck": "brown",
+   "name": "Подмостовная братия",
+   "nameEn": "Canting crew",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "carcer",
+   "deck": "brown",
+   "name": "Карцер",
+   "nameEn": "Carcer",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "cosmo-lavish",
+   "deck": "brown",
+   "name": "Космо Лэвиш",
+   "nameEn": "Cosmo Lavish",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "deep-dwarves",
+   "deck": "brown",
+   "name": "Глубинные гномы",
+   "nameEn": "Deep Dwarves",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "dorfl",
+   "deck": "brown",
+   "name": "Дорфл",
+   "nameEn": "Dorfl",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "dwarves",
+   "deck": "brown",
+   "name": "Гномы",
+   "nameEn": "Dwarves",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "errol",
+   "deck": "brown",
+   "name": "Эррол",
+   "nameEn": "Errol",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "gargoyles",
+   "deck": "brown",
+   "name": "Горгульи",
+   "nameEn": "Gargoyles",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "guards",
+   "deck": "brown",
+   "name": "Стража",
+   "nameEn": "Guards",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "removeTrouble"
+    }
+   ]
+  },
+  {
+   "id": "hobson-livery-stables",
+   "deck": "brown",
+   "name": "Съёмные конюшни Хобсона",
+   "nameEn": "Hobson Livery Stables",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "hubert",
+   "deck": "brown",
+   "name": "Хьюберт",
+   "nameEn": "Hubert",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "luggage",
+   "deck": "brown",
+   "name": "Багаж",
+   "nameEn": "Luggage",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "mr-slant",
+   "deck": "brown",
+   "name": "Мистер Слэнт",
+   "nameEn": "Mr Slant",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "otto-chriek",
+   "deck": "brown",
+   "name": "Отто Шрик",
+   "nameEn": "Otto Chriek",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "ponder-stibbons",
+   "deck": "brown",
+   "name": "Пондер Стиббонс",
+   "nameEn": "Ponder Stibbons",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "post-office",
+   "deck": "brown",
+   "name": "Почтамт",
+   "nameEn": "Post Office",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "rubina",
+   "deck": "brown",
+   "name": "Рубина",
+   "nameEn": "Rubina",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "sgt-colon",
+   "deck": "brown",
+   "name": "Сержант Колон",
+   "nameEn": "Sgt Colon",
+   "symbols": [
+    {
+     "kind": "removeTrouble"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "sgt-cheery-littlebottom",
+   "deck": "brown",
+   "name": "сержант Чирей Литлботом",
+   "nameEn": "Sgt. Cheery Littlebottom",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "removeTrouble"
+    }
+   ]
+  },
+  {
+   "id": "sgt-detritus",
+   "deck": "brown",
+   "name": "Сержант Детрит",
+   "nameEn": "Sgt. Detritus",
+   "symbols": [
+    {
+     "kind": "removeTrouble"
+    },
+    {
+     "kind": "removeTrouble"
+    }
+   ]
+  },
+  {
+   "id": "sir-charles-lavatory",
+   "deck": "brown",
+   "name": "Сэр Чарльз Клозет",
+   "nameEn": "Sir Charles Lavatory",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "smoking-gnu",
+   "deck": "brown",
+   "name": "Дымящий ГНУ",
+   "nameEn": "Smoking GNU",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "stanley",
+   "deck": "brown",
+   "name": "Стэнли",
+   "nameEn": "Stanley",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "sybil-vimes",
+   "deck": "brown",
+   "name": "Сибилла Ваймс",
+   "nameEn": "Sybil Vimes",
+   "symbols": [
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "william-de-worde",
+   "deck": "brown",
+   "name": "Уильям де Уорд",
+   "nameEn": "William de Worde",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "scroll"
+    }
+   ]
+  },
+  {
+   "id": "adora-belle-dearheart",
+   "deck": "brown",
+   "name": "Адора Бель Дирхарт",
+   "nameEn": "Adora Belle Dearheart",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "bursar",
+   "deck": "brown",
+   "name": "Казначей",
+   "nameEn": "Bursar",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "chair-of-indefinite-studies",
+   "deck": "brown",
+   "name": "Заведующий кафедрой беспредметных изысканий",
+   "nameEn": "Chair of Indefinite Studies",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "clack-towers",
+   "deck": "brown",
+   "name": "Клац-башни",
+   "nameEn": "Clack Towers",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "money",
+     "amount": 2
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "dean-of-pentacles",
+   "deck": "brown",
+   "name": "Декан",
+   "nameEn": "Dean (of Pentacles)",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "dr-hicks",
+   "deck": "brown",
+   "name": "Доктор Хикс",
+   "nameEn": "Dr Hicks",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "edward-death",
+   "deck": "brown",
+   "name": "Эдвард Тремс",
+   "nameEn": "Edward d'Eath",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "hello",
+   "deck": "brown",
+   "name": "\"ПРИВЕТ\"",
+   "nameEn": "HELLO",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "lecturer-in-recent-runes",
+   "deck": "brown",
+   "name": "Преподаватель новейших рун",
+   "nameEn": "Lecturer in recent runes",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "lord-downey",
+   "deck": "brown",
+   "name": "Лорд Дауни",
+   "nameEn": "Lord Downey",
+   "symbols": [
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "building"
+    }
+   ]
+  },
+  {
+   "id": "mr-teatime",
+   "deck": "brown",
+   "name": "Мистер Тчай",
+   "nameEn": "Mr. Teatime",
+   "symbols": [
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "assassinate"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "patrician-palace",
+   "deck": "brown",
+   "name": "Дворец Патриция",
+   "nameEn": "Patrician palace",
+   "symbols": [
+    {
+     "kind": "building"
+    },
+    {
+     "kind": "money",
+     "amount": 4
+    },
+    {
+     "kind": "minion"
+    }
+   ]
+  },
+  {
+   "id": "senior-wrangler",
+   "deck": "brown",
+   "name": "Главный философ",
+   "nameEn": "Senior Wrangler",
+   "symbols": [
+    {
+     "kind": "event"
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "the-mob",
+   "deck": "brown",
+   "name": "Толпа",
+   "nameEn": "The Mob",
+   "symbols": [
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  },
+  {
+   "id": "moist-von-lipwig",
+   "deck": "brown",
+   "name": "Мойст фон Липвиг",
+   "nameEn": "Moist von Lipwig",
+   "symbols": [
+    {
+     "kind": "minion"
+    },
+    {
+     "kind": "money",
+     "amount": 3
+    },
+    {
+     "kind": "scroll"
+    },
+    {
+     "kind": "playAnother"
+    }
+   ]
+  }
+ ],
+ "personalities": [
+  {
+   "id": "dragon-king-of-arms",
+   "name": "Король-дракон гербов"
+  },
+  {
+   "id": "commander-vimes",
+   "name": "Командор Ваймс"
+  },
+  {
+   "id": "lord-vetinari",
+   "name": "Лорд Ветинари"
+  },
+  {
+   "id": "lord-de-worde",
+   "name": "Лорд де Уорд"
+  },
+  {
+   "id": "lord-rust",
+   "name": "Лорд Раст"
+  },
+  {
+   "id": "lord-selachii",
+   "name": "Лорд Селачии"
+  },
+  {
+   "id": "chrysoprase",
+   "name": "Хризопраз"
+  }
+ ],
+ "events": [
+  {
+   "id": "bloody-stupid-johnson",
+   "name": "Чертов Тупица Джонсон"
+  },
+  {
+   "id": "demons-from-dungeon-dimensions",
+   "name": "Демоны из Подземельных Измерений"
+  },
+  {
+   "id": "earthquake",
+   "name": "Землетрясение"
+  },
+  {
+   "id": "explosion",
+   "name": "Взрыв"
+  },
+  {
+   "id": "fire",
+   "name": "Пожар"
+  },
+  {
+   "id": "flood",
+   "name": "Наводнение"
+  },
+  {
+   "id": "fog",
+   "name": "Туман"
+  },
+  {
+   "id": "mysterious-murders",
+   "name": "Загадочные убийства"
+  },
+  {
+   "id": "riots",
+   "name": "Бунты"
+  },
+  {
+   "id": "subsidence",
+   "name": "Проседание грунта"
+  },
+  {
+   "id": "the-dragon",
+   "name": "Дракон"
+  },
+  {
+   "id": "trolls",
+   "name": "Тролли"
+  }
+ ]
+}
