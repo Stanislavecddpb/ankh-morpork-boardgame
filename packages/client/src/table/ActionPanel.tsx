@@ -1,0 +1,78 @@
+import { CARD_BY_ID, EVENT_BY_ID, canEndTurn, currentSymbol, deckSize, eventsLeft, type AMState, type CardSymbol } from '@am/engine';
+import { cardImg, eventImg, BACK_PLAY } from './assets';
+
+const LABEL: Record<CardSymbol['kind'], string> = {
+  minion: 'Поставить слугу', building: 'Построить здание', assassinate: 'Убийство',
+  removeTrouble: 'Убрать беспорядок', money: 'Взять деньги', scroll: 'Текст карты',
+  event: 'Случайное событие', playAnother: 'Сыграть ещё карту', interrupt: 'Прерывание',
+};
+
+const label = (s: CardSymbol) => (s.kind === 'money' ? `Взять $${s.amount}` : LABEL[s.kind]);
+
+export function ActionPanel({ G, ctx, me, moves, undo, nameOf, from }: {
+  G: AMState; ctx: any; me: string | null; moves: any; undo: () => void;
+  nameOf: (pid: string) => string; from: number | null;
+}) {
+  const myTurn = me === ctx.currentPlayer && !ctx.gameover;
+  const sym = currentSymbol(G);
+  const top = G.discard.at(-1);
+
+  return (
+    <section className="action">
+      <div className="piles">
+        <span>Колода: {deckSize(G)}</span>
+        <span>События: {eventsLeft(G)}</span>
+        <span className="discard-top">Сброс: {top ? <img src={cardImg(top)} alt={CARD_BY_ID[top]?.name} title={CARD_BY_ID[top]?.name} /> : <img src={BACK_PLAY} alt="" className="dim" />}</span>
+      </div>
+
+      {G.play && (
+        <div className="in-play">
+          <img className="in-play-card" src={cardImg(G.play.cardId)} alt={CARD_BY_ID[G.play.cardId]?.name} />
+          <ol className="queue">
+            {G.play.queue.map((s, i) => <li key={i} className={i === 0 ? 'now' : ''}>{label(s)}</li>)}
+          </ol>
+        </div>
+      )}
+
+      {G.lastEvent && (
+        <div className="event">
+          <img src={eventImg(G.lastEvent)} alt={EVENT_BY_ID[G.lastEvent]?.name} />
+          <div>Событие «{EVENT_BY_ID[G.lastEvent]?.name}»: выполните его вручную (✋).</div>
+        </div>
+      )}
+
+      {!myTurn && !ctx.gameover && <div className="hint">Ходит {nameOf(ctx.currentPlayer)}…</div>}
+
+      {myTurn && sym && (
+        <div className="hint">
+          {(sym.kind === 'minion' || sym.kind === 'building') && (from == null
+            ? <>Выберите район на поле. {sym.kind === 'minion' && G.players[me!].minionSupply === 0 && 'Все слуги на поле — сначала выберите, кого переставить.'}{sym.kind === 'building' && G.players[me!].buildingSupply === 0 && 'Все здания на поле — сначала выберите, какое перенести.'}</>
+            : <>Теперь выберите, куда.</>)}
+          {sym.kind === 'assassinate' && 'Выберите район с беспорядком, затем жертву.'}
+          {sym.kind === 'removeTrouble' && 'Выберите район с жетоном беспорядка.'}
+          {(sym.kind === 'scroll' || sym.kind === 'interrupt') && 'Выполните текст карты вручную (✋), затем нажмите «Готово».'}
+          <div className="buttons">
+            {sym.kind === 'money' && <button className="btn" onClick={() => moves.takeMoney()}>{label(sym)}</button>}
+            {sym.kind === 'playAnother' && <button className="btn" onClick={() => moves.playAnother()}>Можно сыграть ещё карту</button>}
+            {sym.kind === 'event' && <button className="btn" onClick={() => moves.drawEvent()}>Тянуть событие</button>}
+            {(sym.kind === 'scroll' || sym.kind === 'interrupt') && <button className="btn" onClick={() => moves.skipSymbol()}>Готово</button>}
+            {sym.kind !== 'event' && sym.kind !== 'scroll' && sym.kind !== 'interrupt' && (
+              <button className="btn ghost" onClick={() => moves.skipSymbol()}>Пропустить</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {myTurn && !G.play && (
+        <div className="hint">
+          {G.playsLeft > 0 ? (G.cardsPlayed === 0 ? 'Сыграйте карту из руки.' : 'Можно сыграть ещё одну карту.') : 'Карты сыграны.'}
+          <div className="buttons">
+            <button className="btn" disabled={!!canEndTurn(G, me!)} onClick={() => moves.finishTurn()}>Закончить ход</button>
+          </div>
+        </div>
+      )}
+
+      {myTurn && <button className="btn ghost undo" onClick={() => undo()}>↶ Отменить</button>}
+    </section>
+  );
+}

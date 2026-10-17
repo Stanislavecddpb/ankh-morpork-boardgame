@@ -1,7 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { BoardProps } from 'boardgame.io/react';
-import type { AMState } from '@am/engine';
+import {
+  areasWithMinionsOf, assassinationAreas, assassinationTargets, buildableAreas, currentSymbol,
+  legalMinionAreas, troubleAreas, AREA_IDS, type AMState, type AreaId, type Target,
+} from '@am/engine';
 import { Lobby } from './Lobby';
+import { BoardView } from './BoardView';
+import { Hand } from './Hand';
+import { ActionPanel } from './ActionPanel';
+import { PlayersPanel } from './PlayersPanel';
+import { LogPanel } from './LogPanel';
+import { personalityImg } from './assets';
 
 interface MatchPlayer { id: number; name?: string }
 
@@ -17,16 +26,80 @@ export interface TableProps {
   G: AMState; ctx: any; moves: any; undo: () => void; me: string | null; matchData?: MatchPlayer[];
 }
 
-export function Table({ G, ctx, moves, me, matchData }: TableProps) {
-  const nameOf = (pid: string) => matchData?.find((m) => String(m.id) === pid)?.name || G.players[pid]?.name || `Игрок ${Number(pid) + 1}`;
+export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
+  const [manualOn, setManualOn] = useState(false);
+  const [from, setFrom] = useState<AreaId | null>(null);
+  const [menuArea, setMenuArea] = useState<AreaId | null>(null);
 
-  // Имя из лобби boardgame.io переносим в состояние игры, чтобы оно попадало в лог.
+  const nameOf = (pid: string) =>
+    matchData?.find((m) => String(m.id) === pid)?.name || G.players[pid]?.name || `Игрок ${Number(pid) + 1}`;
+
   useEffect(() => {
     if (ctx.phase !== 'lobby' || !me || !matchData) return;
     const n = matchData.find((m) => String(m.id) === me)?.name;
     if (n && G.players[me]?.name !== n) moves.setName(n);
   }, [ctx.phase, me, matchData, G.players, moves]);
 
+  // Сброс выбора при смене символа или хода.
+  const sym = currentSymbol(G);
+  useEffect(() => { setFrom(null); setMenuArea(null); }, [sym?.kind, G.play?.queue.length, ctx.turn]);
+
   if (ctx.phase === 'lobby') return <Lobby G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />;
-  return <div className="table"><p>Поле в разработке. Ходит: {nameOf(ctx.currentPlayer)}</p></div>;
+
+  const myTurn = me === ctx.currentPlayer && !ctx.gameover;
+  const mine = me ? G.players[me] : null;
+
+  let highlight: AreaId[] = [];
+  let onArea: (id: AreaId) => void = () => {};
+  if (myTurn && manualOn) {
+    highlight = AREA_IDS;
+    onArea = (id) => setMenuArea(id);
+  } else if (myTurn && sym && me && mine) {
+    if (sym.kind === 'minion') {
+      if (mine.minionSupply > 0) { highlight = legalMinionAreas(G, me); onArea = (id) => moves.placeMinion(id); }
+      else if (from == null) { highlight = areasWithMinionsOf(G, me); onArea = setFrom; }
+      else { highlight = legalMinionAreas(G, me).filter((id) => id !== from); onArea = (id) => moves.placeMinion(id, from); }
+    } else if (sym.kind === 'building') {
+      if (mine.buildingSupply > 0) { highlight = buildableAreas(G, me); onArea = (id) => moves.build(id); }
+      else if (from == null) { highlight = AREA_IDS.filter((id) => G.areas[id].building === me); onArea = setFrom; }
+      else { highlight = buildableAreas(G, me); onArea = (id) => moves.build(id, from); }
+    } else if (sym.kind === 'assassinate') {
+      highlight = assassinationAreas(G, me);
+      onArea = setMenuArea;
+    } else if (sym.kind === 'removeTrouble') {
+      highlight = troubleAreas(G);
+      onArea = (id) => moves.removeTrouble(id);
+    }
+  }
+
+  const targetName = (t: Target) => (t.kind === 'minion' ? `Слуга: ${nameOf(t.owner)}` : t.kind === 'demon' ? 'Демон' : 'Тролль');
+
+  return (
+    <div className="table">
+      <div className="table-board">
+        <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} />
+      </div>
+      <aside className="table-side">
+        <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} />
+        <ActionPanel G={G} ctx={ctx} me={me} moves={moves} undo={undo} nameOf={nameOf} from={from} />
+        <LogPanel log={G.log} />
+      </aside>
+      <footer className="table-foot">
+        <Hand G={G} me={me} canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn} onPlay={(id) => moves.playCard(id)} />
+        {mine?.personality && <img className="personality" src={personalityImg(mine.personality)} alt="Ваша личность" title="Ваша личность (видна только вам)" />}
+      </footer>
+
+      {menuArea != null && !manualOn && sym?.kind === 'assassinate' && me && (
+        <div className="popup" onClick={() => setMenuArea(null)}>
+          <div className="popup-box" onClick={(e) => e.stopPropagation()}>
+            <h3>Кого убрать?</h3>
+            {assassinationTargets(G, me, menuArea).map((t, i) => (
+              <button key={i} className="btn" onClick={() => { moves.assassinate(menuArea, t); setMenuArea(null); }}>{targetName(t)}</button>
+            ))}
+            <button className="btn ghost" onClick={() => setMenuArea(null)}>Отмена</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

@@ -1,0 +1,32 @@
+import puppeteer from 'puppeteer';
+const base = process.argv[2];
+const out = process.argv[3];
+const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 1366, height: 768 });
+const errs = [];
+page.on('pageerror', (e) => errs.push(e.message));
+page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
+const click = (sel, text) => page.evaluate((sel, text) => {
+  const el = [...document.querySelectorAll(sel)].find((e) => !text || e.textContent.includes(text));
+  if (!el) return false; el.click(); return true;
+}, sel, text);
+await page.goto(base + '/#/local', { waitUntil: 'networkidle0' });
+await click('.page-count button', '2'); await click('button', 'Начать');
+await page.waitForSelector('.swatch');
+await page.evaluate(() => { const rows = document.querySelectorAll('.seat'); rows[0].querySelectorAll('.swatch')[0].click(); });
+await new Promise(r => setTimeout(r, 200));
+await page.evaluate(() => { const rows = document.querySelectorAll('.seat'); rows[1].querySelectorAll('.swatch')[3].click(); });
+await new Promise(r => setTimeout(r, 200));
+await click('button', 'Начать игру');
+await page.waitForSelector('.board');
+await new Promise(r => setTimeout(r, 1500));
+await page.screenshot({ path: out + '-1.png' });
+// сыграть первую карту
+await click('.hand-card');
+await new Promise(r => setTimeout(r, 500));
+await page.screenshot({ path: out + '-2.png' });
+const info = await page.evaluate(() => ({ hint: document.querySelector('.action')?.innerText, hl: document.querySelectorAll('.area.hl').length }));
+console.log(JSON.stringify(info));
+console.log(errs.length ? 'ERRORS:\n' + errs.join('\n') : 'no page errors');
+await browser.close();
