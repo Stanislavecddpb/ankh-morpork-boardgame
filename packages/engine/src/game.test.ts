@@ -8,7 +8,7 @@ import { COLORS } from './types';
 import { currentSymbol } from './turn';
 import { assassinationAreas, assassinationTargets, buildableAreas, legalMinionAreas, troubleAreas } from './rules';
 import { AREA_IDS } from './data/areas';
-import { defineEffects, effectFor } from './cards';
+import { defineEffects, effectFor, hasEffect } from './cards';
 
 const testGame: Game<AMState> = { ...AnkhMorporkGame, playerView: undefined };
 
@@ -185,6 +185,19 @@ function autoplay(numPlayers: number, seed: number) {
   for (let step = 0; step < 20000; step++) {
     const { G, ctx } = client.getState()!;
     if (ctx.gameover) return ctx.gameover;
+    const pr = G.prompt;
+    if (pr) {
+      // Отвечает тот, кого спрашивают (в том числе соперник).
+      client.updatePlayerID(pr.actor);
+      if (pr.kind === 'hand') client.moves.answer(G.players[pr.actor].hand.slice(0, pr.min ?? 0));
+      else client.moves.answer(pick(pr.options));
+      if (JSON.stringify(client.getState()!.G.prompt) === JSON.stringify(pr)) {
+        client.updatePlayerID(ctx.currentPlayer);
+        client.moves.skipSymbol();
+      }
+      continue;
+    }
+    client.updatePlayerID(ctx.currentPlayer);
     const pid = ctx.currentPlayer;
     const p = G.players[pid];
     if (!G.play) {
@@ -223,6 +236,7 @@ function autoplay(numPlayers: number, seed: number) {
       case 'money': client.moves.takeMoney(); break;
       case 'playAnother': client.moves.playAnother(); break;
       case 'event': client.moves.drawEvent(); break;
+      case 'scroll': if (hasEffect(G.play.cardId)) client.moves.startScroll(); else client.moves.skipSymbol(); break;
       default: client.moves.skipSymbol();
     }
   }

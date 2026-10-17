@@ -3,11 +3,21 @@ import { defineEffects, effectFor } from './run';
 import { ask, say } from './ops';
 import { scenario } from './testkit';
 import { playerView } from '../view';
+import { CARDS } from '../data/cards';
+import { hasEffect } from './run';
+import './index';
 
 // Тестовый эффект подменяет настоящий эффект Драмнотта (только свиток) и возвращает его после теста.
 const TEST = 'drumknott';
 const saved = effectFor(TEST);
 afterEach(() => { defineEffects({ [TEST]: saved as never }); });
+
+describe('реестр', () => {
+  it('у каждой карты со свитком есть эффект', () => {
+    const missing = CARDS.filter((c) => c.symbols.some((s) => s.kind === 'scroll') && !hasEffect(c.id)).map((c) => c.id);
+    expect(missing).toEqual([]);
+  });
+});
 
 describe('исполнитель свитков', () => {
   it('вопрос → ответ → карта уходит в сброс', () => {
