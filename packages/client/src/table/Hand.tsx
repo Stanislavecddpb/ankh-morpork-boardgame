@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { CARD_BY_ID, HIDDEN_CARD, isInterrupt, type AMState } from '@am/engine';
+import { CARD_BY_ID, HIDDEN_CARD, type AMState } from '@am/engine';
+
+const MOSSY = 'dr-mossy-lawn';
 import { cardImg } from './assets';
 
 /** Рука — выдвижная панель поверх низа поля: закрыта, пока не нужна (и чтобы не подсмотрели). */
@@ -68,9 +70,10 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, distr
             </button>
           ))}
           {hand.length === 0 && <div className="hand-empty">Рука пуста</div>}
-          {!select && onInterrupt && hand.some(isInterrupt) && (
+          {/* Защитные прерывания игра предлагает сама; вручную — только Доктор Мосси Лаун в свой ход. */}
+          {!select && onInterrupt && hand.includes(MOSSY) && (
             <div className="hand-interrupts">
-              {hand.filter(isInterrupt).map((id) => (
+              {[MOSSY].map((id) => (
                 <button key={id} className="btn small" onClick={() => onInterrupt(id)}>✋ {CARD_BY_ID[id]?.name}</button>
               ))}
             </div>

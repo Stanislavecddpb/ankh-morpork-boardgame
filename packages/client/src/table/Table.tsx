@@ -177,11 +177,9 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
           select={selectHand ? { min: myPrompt!.min ?? 0, max: myPrompt!.max ?? 99, onDone: (cards) => moves.answer(cards) } : undefined}
           canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn}
           onPlay={(id) => { moves.playCard(id); setHandOpen(false); }}
-          onInterrupt={(id) => {
-            if (id === 'dr-mossy-lawn' && myTurn) {
-              if (window.confirm('Доктор Мосси Лаун: прервать ход? Сыгранная карта вернётся в руку.')) moves.mossyLawn();
-            } else if (window.confirm(`Сыграть «${CARD_BY_ID[id]?.name}» вне очереди? Эффект выполните вручную (✋).`)) moves.playInterrupt(id);
-          }}
+          onInterrupt={myTurn ? (id) => {
+            if (id === 'dr-mossy-lawn' && window.confirm('Доктор Мосси Лаун: прервать ход? Сыгранная карта вернётся в руку.')) moves.mossyLawn();
+          } : undefined}
           districts={me && G.players[me] ? {
             label: `Мои районы (${AREA_IDS.filter((id) => G.areas[id].building === me).length})`,
             glow: myTurn && usableDistricts(G, me).length > 0,
