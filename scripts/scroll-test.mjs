@@ -16,7 +16,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** Кликнуть первый элемент sel (с текстом text), если он есть и активен. */
 const click = (sel, text) => page.evaluate((sel, text) => {
-  const el = [...document.querySelectorAll(sel)].find((e) => (!text || e.textContent.includes(text)) && !e.disabled);
+  const el = [...document.querySelectorAll(sel)].find((e) => (!text || e.textContent.includes(text)) && !e.disabled && e.getAttribute('aria-disabled') !== 'true');
   if (!el) return false;
   el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   return true;

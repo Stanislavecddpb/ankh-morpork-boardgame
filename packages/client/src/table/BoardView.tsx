@@ -154,18 +154,19 @@ function inside(px: number, py: number, pts: number[][]): boolean {
  * Места под фишки в районе: узлы сетки, у которых жетон целиком внутри контура
  * и не закрывает надписи района, отсортированные по удалённости от якоря.
  */
-function slotsFor(id: AreaId): number[][] {
+function slotsFor(id: AreaId, scale = 1, avoidLabels = true): number[][] {
   const g = GEO.areas[id];
   const pts = g.points;
   const xs = pts.map((p) => p[0]);
   const ys = pts.map((p) => p[1]);
-  const r = T * 0.5;
-  const fine = T / 4;
+  const t = T * scale;
+  const r = t * 0.5;
+  const fine = t / 4;
   const cand: number[][] = [];
   for (let x = Math.min(...xs) + r; x <= Math.max(...xs) - r; x += fine) {
     for (let y = Math.min(...ys) + r; y <= Math.max(...ys) - r; y += fine) {
       const corners = [[x - r, y - r], [x + r, y - r], [x - r, y + r], [x + r, y + r], [x, y]];
-      const clear = (g.avoid ?? []).every(([x0, y0, x1, y1]) =>
+      const clear = !avoidLabels || (g.avoid ?? []).every(([x0, y0, x1, y1]) =>
         x + r < x0 - PAD || x - r > x1 + PAD || y + r < y0 - PAD || y - r > y1 + PAD);
       if (clear && corners.every(([cx, cy]) => inside(cx, cy, pts))) cand.push([x, y]);
     }
@@ -175,18 +176,30 @@ function slotsFor(id: AreaId): number[][] {
   cand.sort((a, b) => Math.hypot(a[0] - ax, a[1] - ay) - Math.hypot(b[0] - ax, b[1] - ay));
   const out: number[][] = [];
   for (const c of cand) {
-    if (out.every((o) => Math.max(Math.abs(o[0] - c[0]), Math.abs(o[1] - c[1])) >= T * 0.98)) out.push(c);
+    if (out.every((o) => Math.max(Math.abs(o[0] - c[0]), Math.abs(o[1] - c[1])) >= t * 0.98)) out.push(c);
   }
   return out;
 }
 
-const SLOTS: Record<number, number[][]> = Object.fromEntries(
-  AREA_IDS.filter((id) => GEO.areas[id]).map((id) => [id, slotsFor(id)]),
-);
+/** Раскладки от крупной к мелкой: в тесном районе (Остров Богов) жетоны уменьшаются, а не громоздятся друг на друга. */
+const LAYOUTS: { scale: number; avoid: boolean }[] = [
+  { scale: 1, avoid: true }, { scale: 0.82, avoid: true }, { scale: 0.68, avoid: true },
+  { scale: 0.68, avoid: false }, { scale: 0.55, avoid: false },
+];
+const SLOT_CACHE: Record<string, number[][]> = {};
+function layoutFor(id: AreaId, count: number): { slots: number[][]; t: number } {
+  let last = { slots: [] as number[][], t: T };
+  for (const { scale, avoid } of LAYOUTS) {
+    const key = `${id}:${scale}:${avoid}`;
+    const slots = (SLOT_CACHE[key] ??= slotsFor(id, scale, avoid));
+    last = { slots, t: T * scale };
+    if (slots.length >= count) break;
+  }
+  return last;
+}
 
 function AreaPieces({ G, id, colorOf }: { G: AMState; id: AreaId; colorOf: (pid: string) => Color }) {
-  const slots = SLOTS[id];
-  if (!slots?.length) return null;
+  if (!GEO.areas[id]) return null;
   const a = G.areas[id];
   const items: { href: string; key: string }[] = [];
   if (a.building) items.push({ href: tokenImg('building', colorOf(a.building)), key: 'b' });
@@ -196,13 +209,15 @@ function AreaPieces({ G, id, colorOf }: { G: AMState; id: AreaId; colorOf: (pid:
   }
   for (let i = 0; i < a.demons; i++) items.push({ href: DEMON, key: `d${i}` });
   for (let i = 0; i < a.trolls; i++) items.push({ href: TROLL, key: `t${i}` });
+  const { slots, t } = layoutFor(id, items.length);
+  if (!slots.length) return null;
   return (
     <g pointerEvents="none">
       {items.map((it, i) => {
-        // Если мест не хватило, следующий круг кладём со сдвигом поверх.
+        // Если мест всё равно не хватило, следующий круг кладём со сдвигом поверх.
         const [x, y] = slots[i % slots.length];
-        const shift = Math.floor(i / slots.length) * T * 0.3;
-        return <image key={it.key} href={it.href} x={x - T / 2 + shift} y={y - T / 2 - shift} width={T} height={T} className="piece" />;
+        const shift = Math.floor(i / slots.length) * t * 0.3;
+        return <image key={it.key} href={it.href} x={x - t / 2 + shift} y={y - t / 2 - shift} width={t} height={t} className="piece" />;
       })}
     </g>
   );

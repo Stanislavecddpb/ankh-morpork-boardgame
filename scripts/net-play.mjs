@@ -18,7 +18,7 @@ const problem = (t) => { if (!problems.includes(t)) { problems.push(t); console.
 
 /** Кликнуть первый активный элемент sel (с текстом text); twice — двойной клик. */
 const click = (page, sel, text, twice = false) => page.evaluate((sel, text, twice) => {
-  const el = [...document.querySelectorAll(sel)].find((e) => (!text || e.textContent.includes(text)) && !e.disabled);
+  const el = [...document.querySelectorAll(sel)].find((e) => (!text || e.textContent.includes(text)) && !e.disabled && e.getAttribute('aria-disabled') !== 'true');
   if (!el) return false;
   el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   if (twice) el.dispatchEvent(new MouseEvent('click', { bubbles: true }));

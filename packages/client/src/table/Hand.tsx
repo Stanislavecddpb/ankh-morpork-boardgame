@@ -48,10 +48,10 @@ export function Hand({ G, me, open, setOpen, canPlay, onPlay, onInterrupt, distr
         <div className="hand">
           {hand.map((id, i) => (
             <button key={`${id}-${i}`} className={`hand-card ${picked.includes(id) ? 'picked' : ''}`}
-              disabled={!select && !canPlay}
+              aria-disabled={!select && !canPlay}
               onClick={() => {
                 if (select) toggle(id);
-                else { setPreview(null); onPlay(id); }
+                else if (canPlay) { setPreview(null); onPlay(id); }
               }}
               onMouseEnter={(e) => {
                 // Над панелью руки, по центру наведённой карты, не выходя за края экрана.

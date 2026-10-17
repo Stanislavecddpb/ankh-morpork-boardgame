@@ -251,3 +251,12 @@ button:disabled { cursor: default; opacity: 0.5; }
 .dice-caption span { font-size: 1.1rem; opacity: 0.75; }
 .area.rolled { fill: #ff5a1f55; stroke: #ff3b00; stroke-width: 10; animation: area-rolled 0.6s ease-in-out infinite alternate; }
 @keyframes area-rolled { from { fill: #ff5a1f30; } to { fill: #ff5a1f80; } }
+
+/* ——— Сворачиваемые окна вопросов ——— */
+.popup-box { position: relative; }
+.popup-hide { position: absolute; top: 6px; right: 6px; z-index: 1; }
+.prompt-restore { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 9; max-width: 80vw;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: 0 0 0 3px var(--gold), 0 6px 20px #0006; }
+.hand-card[aria-disabled='true'] { cursor: default; }
+.hand-card[aria-disabled='true']:hover { transform: none; }
+.popup-box:has(> .popup-hide) { padding-top: 44px; }

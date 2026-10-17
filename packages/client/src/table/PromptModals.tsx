@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
 import { CARD_BY_ID, PERSONALITY_BY_ID, type AMState, type PersonalityId } from '@am/engine';
 import { cardImg, effectImg, personalityImg } from './assets';
 
@@ -7,6 +7,23 @@ export const SeatContext = createContext<((pid: string) => void) | null>(null);
 
 const imgOf = (id: string) => (id in PERSONALITY_BY_ID ? personalityImg(id as PersonalityId) : cardImg(id));
 const nameOfCard = (id: string) => PERSONALITY_BY_ID[id as PersonalityId]?.name ?? CARD_BY_ID[id]?.name ?? id;
+
+/** Окно вопроса, которое можно свернуть: посмотреть руку и поле, потом вернуться к выбору. */
+function Collapsible({ id, title, className, children }: { id: string; title: string; className: string; children: ReactNode }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => setHidden(false), [id]);
+  if (hidden) {
+    return <button className="btn prompt-restore" onClick={() => setHidden(false)}>↩ Вернуться к выбору: {title}</button>;
+  }
+  return (
+    <div className="popup">
+      <div className={`popup-box ${className}`}>
+        <button className="btn ghost small popup-hide" title="Скрыть, чтобы посмотреть свои карты и поле" onClick={() => setHidden(true)}>Свернуть ▾</button>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 /** Вопрос сопернику (кнопки или выбор карт из его руки) — у того, кто отвечает. */
 export function RespondModal({ G, ctx, me, moves }: { G: AMState; ctx: any; me: string | null; moves: any }) {
@@ -17,8 +34,7 @@ export function RespondModal({ G, ctx, me, moves }: { G: AMState; ctx: any; me: 
   const toggle = (c: string) =>
     setPicked((x) => (x.includes(c) ? x.filter((y) => y !== c) : x.length < (p.max ?? 99) ? [...x, c] : x));
   return (
-    <div className="popup">
-      <div className="popup-box respond-box">
+    <Collapsible id={`${p.cardId}:${p.step}:${p.actor}`} title={p.text} className="respond-box">
         <img className="respond-card" src={effectImg(p.cardId)} alt="" />
         <div className="respond-body">
           <h3>{p.text}</h3>
@@ -40,8 +56,7 @@ export function RespondModal({ G, ctx, me, moves }: { G: AMState; ctx: any; me: 
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Collapsible>
   );
 }
 
@@ -56,8 +71,7 @@ export function OfferModal({ G, me, moves }: { G: AMState; me: string | null; mo
       ? 'Вас выбрали целью текста карты. Сыграть прерывание?'
       : `Ваш${o.losses.length > 1 ? 'их слуг' : 'его слугу'} ${o.losses.some((l) => l.to != null) ? 'убрали или передвинули' : 'убрали'}. Сыграть прерывание?`;
   return (
-    <div className="popup">
-      <div className="popup-box respond-box offer-box">
+    <Collapsible id={JSON.stringify(o.options)} title="прерывание" className="respond-box offer-box">
         <div className="offer-cards">{cards.map((c) => <img key={c} className="respond-card" src={cardImg(c)} alt={nameOfCard(c)} />)}</div>
         <div className="respond-body">
           <h3>{text}</h3>
@@ -65,8 +79,7 @@ export function OfferModal({ G, me, moves }: { G: AMState; me: string | null; mo
             <button key={x} className={`btn ${x === 'none' ? 'ghost' : ''}`} onClick={() => moves.interrupt(x)}>{o.labels[x] ?? x}</button>
           ))}
         </div>
-      </div>
-    </div>
+    </Collapsible>
   );
 }
 
@@ -76,8 +89,7 @@ export function RevealModal({ G, me, moves }: { G: AMState; me: string | null; m
   if (!p || p.kind !== 'reveal' || p.actor !== me || !p.reveal) return null;
   const ok = p.options.length === 1 && p.options[0] === 'ok';
   return (
-    <div className="popup">
-      <div className="popup-box reveal-box">
+    <Collapsible id={`${p.cardId}:${p.step}`} title={p.text} className="reveal-box">
         <h3>{p.text}</h3>
         <div className="reveal">
           {p.reveal.map((id) => (
@@ -89,8 +101,7 @@ export function RevealModal({ G, me, moves }: { G: AMState; me: string | null; m
           ))}
         </div>
         {ok && <button className="btn" onClick={() => moves.answer('ok')}>Понятно</button>}
-      </div>
-    </div>
+    </Collapsible>
   );
 }
 
