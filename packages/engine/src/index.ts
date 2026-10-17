@@ -3,3 +3,4 @@ export * from './data/cards';
 export * from './data/areas';
 export * from './helpers';
 export * from './setup';
+export * from './rules';
