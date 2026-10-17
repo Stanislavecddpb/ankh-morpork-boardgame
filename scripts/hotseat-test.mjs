@@ -35,6 +35,12 @@ await page.waitForSelector('.board');
 await sleep(1200);
 await page.screenshot({ path: `${out}-1.png` });
 
+/** Открыть руку (выдвижная панель) и сыграть первую карту. */
+async function playFirst() {
+  if (!(await page.$('.hand-card'))) await click('.hand-toggle');
+  await click('.hand-card');
+}
+
 /** Доиграть текущую карту, нажимая «пропустить»-подобные кнопки. */
 async function finishCard() {
   for (let i = 0; i < 10; i++) {
@@ -47,7 +53,7 @@ async function finishCard() {
   }
 }
 
-await click('.hand-card');
+await playFirst();
 await page.screenshot({ path: `${out}-2.png` });
 await finishCard();
 
@@ -83,7 +89,7 @@ for (let t = 0; t < 6 && !(await page.$('.gameover')); t++) {
   await click('.action button', 'Закончить ход');
   await sleep(300);
   if (await page.$('.gameover')) break;
-  await click('.hand-card');
+  await playFirst();
   await finishCard();
 }
 await sleep(500);

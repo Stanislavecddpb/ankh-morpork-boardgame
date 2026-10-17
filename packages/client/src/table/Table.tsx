@@ -10,7 +10,6 @@ import { Hand } from './Hand';
 import { ActionPanel } from './ActionPanel';
 import { PlayersPanel } from './PlayersPanel';
 import { LogPanel } from './LogPanel';
-import { personalityImg } from './assets';
 import { ManualPanel, ManualAreaMenu } from './ManualPanel';
 import { GameOverPanel } from './GameOverPanel';
 import { Supply, type DragPiece } from './Supply';
@@ -34,6 +33,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   const [manualOn, setManualOn] = useState(false);
   const [from, setFrom] = useState<AreaId | null>(null);
   const [menuArea, setMenuArea] = useState<AreaId | null>(null);
+  const [handOpen, setHandOpen] = useState(false);
 
   const nameOf = (pid: string) =>
     matchData?.find((m) => String(m.id) === pid)?.name || G.players[pid]?.name || `Игрок ${Number(pid) + 1}`;
@@ -47,7 +47,7 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
   // Сброс выбора при смене символа или хода.
   const sym = currentSymbol(G);
   useEffect(() => { setFrom(null); setMenuArea(null); }, [sym?.kind, G.play?.queue.length, ctx.turn]);
-  useEffect(() => { setManualOn(false); }, [ctx.turn]);
+  useEffect(() => { setManualOn(false); setHandOpen(false); }, [ctx.turn]);
 
   if (ctx.phase === 'lobby') return <Lobby G={G} ctx={ctx} me={me} moves={moves} nameOf={nameOf} />;
 
@@ -99,7 +99,10 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
       <div className="table-board">
         <Supply G={G} me={me} manual={myTurn && manualOn} canDrag={canDrag} nameOf={nameOf} />
         <BoardView G={G} highlight={highlight} selected={from ?? menuArea} onArea={onArea} onDropPiece={onDropPiece} />
-        <Decks G={G} />
+        <Decks G={G} personality={mine?.personality ?? null} flipKey={`${ctx.turn}-${me}`} />
+        <Hand G={G} me={me} open={handOpen} setOpen={setHandOpen}
+          canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn}
+          onPlay={(id) => { moves.playCard(id); setHandOpen(false); }} />
       </div>
       <aside className="table-side">
         <PlayersPanel G={G} ctx={ctx} nameOf={nameOf} />
@@ -107,10 +110,6 @@ export function Table({ G, ctx, moves, undo, me, matchData }: TableProps) {
         {myTurn && me && <ManualPanel G={G} me={me} moves={moves} nameOf={nameOf} on={manualOn} setOn={(v) => { setManualOn(v); setMenuArea(null); }} />}
         <LogPanel log={G.log} />
       </aside>
-      <footer className="table-foot">
-        <Hand G={G} me={me} canPlay={myTurn && !G.play && G.playsLeft > 0 && !manualOn} onPlay={(id) => moves.playCard(id)} />
-        {mine?.personality && <img className="personality" src={personalityImg(mine.personality)} alt="Ваша личность" title="Ваша личность (видна только вам)" />}
-      </footer>
 
       {menuArea != null && !manualOn && sym?.kind === 'assassinate' && me && (
         <div className="popup" onClick={() => setMenuArea(null)}>

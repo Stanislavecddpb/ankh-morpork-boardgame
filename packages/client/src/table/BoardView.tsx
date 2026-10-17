@@ -4,12 +4,17 @@ import geometry from './areas.json';
 import { BOARD, DEMON, TROLL, TROUBLE, tokenImg } from './assets';
 import { readPiece, type DragPiece } from './Supply';
 
-interface Geometry { width: number; height: number; areas: Record<string, { points: number[][]; anchor: number[] }> }
+interface Geometry {
+  width: number; height: number;
+  /** avoid — прямоугольники [x0, y0, x1, y1] с названием, номером и ценой района: фишки их не закрывают. */
+  areas: Record<string, { points: number[][]; anchor: number[]; avoid?: number[][] }>;
+}
 const GEO = geometry as unknown as Geometry;
 const W = GEO.width;
 const H = GEO.height;
-const S = W / 18; // размер жетона
+const T = W / 34; // размер жетона на поле
 const MIN_W = W / 5; // максимальное приближение
+const PAD = 12; // зазор между фишкой и надписью района
 
 interface View { x: number; y: number; w: number }
 
@@ -109,31 +114,70 @@ export function BoardView({ G, highlight, selected, onArea, onDropPiece }: {
   );
 }
 
-function AreaPieces({ G, id, colorOf }: { G: AMState; id: AreaId; colorOf: (pid: string) => Color }) {
+/** Точка внутри многоугольника (луч вправо). */
+function inside(px: number, py: number, pts: number[][]): boolean {
+  let hit = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i];
+    const [xj, yj] = pts[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) hit = !hit;
+  }
+  return hit;
+}
+
+/**
+ * Места под фишки в районе: узлы сетки, у которых жетон целиком внутри контура
+ * и не закрывает надписи района, отсортированные по удалённости от якоря.
+ */
+function slotsFor(id: AreaId): number[][] {
   const g = GEO.areas[id];
-  if (!g) return null;
+  const pts = g.points;
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  const r = T * 0.5;
+  const fine = T / 4;
+  const cand: number[][] = [];
+  for (let x = Math.min(...xs) + r; x <= Math.max(...xs) - r; x += fine) {
+    for (let y = Math.min(...ys) + r; y <= Math.max(...ys) - r; y += fine) {
+      const corners = [[x - r, y - r], [x + r, y - r], [x - r, y + r], [x + r, y + r], [x, y]];
+      const clear = (g.avoid ?? []).every(([x0, y0, x1, y1]) =>
+        x + r < x0 - PAD || x - r > x1 + PAD || y + r < y0 - PAD || y - r > y1 + PAD);
+      if (clear && corners.every(([cx, cy]) => inside(cx, cy, pts))) cand.push([x, y]);
+    }
+  }
+  // Жадно: ближайшие к якорю точки, не ближе жетона друг к другу.
+  const [ax, ay] = g.anchor;
+  cand.sort((a, b) => Math.hypot(a[0] - ax, a[1] - ay) - Math.hypot(b[0] - ax, b[1] - ay));
+  const out: number[][] = [];
+  for (const c of cand) {
+    if (out.every((o) => Math.max(Math.abs(o[0] - c[0]), Math.abs(o[1] - c[1])) >= T * 0.98)) out.push(c);
+  }
+  return out;
+}
+
+const SLOTS: Record<number, number[][]> = Object.fromEntries(
+  AREA_IDS.filter((id) => GEO.areas[id]).map((id) => [id, slotsFor(id)]),
+);
+
+function AreaPieces({ G, id, colorOf }: { G: AMState; id: AreaId; colorOf: (pid: string) => Color }) {
+  const slots = SLOTS[id];
+  if (!slots?.length) return null;
   const a = G.areas[id];
-  const items: { href: string; key: string; count?: number }[] = [];
+  const items: { href: string; key: string }[] = [];
   if (a.building) items.push({ href: tokenImg('building', colorOf(a.building)), key: 'b' });
-  for (const [pid, n] of Object.entries(a.minions)) if (n > 0) items.push({ href: tokenImg('minion', colorOf(pid)), key: `m${pid}`, count: n });
-  if (a.demons) items.push({ href: DEMON, key: 'd', count: a.demons });
-  if (a.trolls) items.push({ href: TROLL, key: 't', count: a.trolls });
   if (a.trouble) items.push({ href: TROUBLE, key: 'x' });
-  const [cx, cy] = g.anchor;
-  const cols = Math.min(3, items.length);
+  for (const [pid, n] of Object.entries(a.minions)) {
+    for (let i = 0; i < n; i++) items.push({ href: tokenImg('minion', colorOf(pid)), key: `m${pid}-${i}` });
+  }
+  for (let i = 0; i < a.demons; i++) items.push({ href: DEMON, key: `d${i}` });
+  for (let i = 0; i < a.trolls; i++) items.push({ href: TROLL, key: `t${i}` });
   return (
     <g pointerEvents="none">
       {items.map((it, i) => {
-        const x = cx + ((i % 3) - (cols - 1) / 2) * S * 1.05 - S / 2;
-        const y = cy + Math.floor(i / 3) * S * 1.05 - S / 2;
-        return (
-          <g key={it.key}>
-            <image href={it.href} x={x} y={y} width={S} height={S} className="piece" />
-            {it.count && it.count > 1 && (
-              <text className="piece-count" x={x + S} y={y + S} fontSize={S * 0.5} textAnchor="end">×{it.count}</text>
-            )}
-          </g>
-        );
+        // Если мест не хватило, следующий круг кладём со сдвигом поверх.
+        const [x, y] = slots[i % slots.length];
+        const shift = Math.floor(i / slots.length) * T * 0.3;
+        return <image key={it.key} href={it.href} x={x - T / 2 + shift} y={y - T / 2 - shift} width={T} height={T} className="piece" />;
       })}
     </g>
   );

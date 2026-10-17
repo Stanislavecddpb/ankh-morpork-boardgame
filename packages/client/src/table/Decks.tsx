@@ -1,8 +1,12 @@
-import { CARD_BY_ID, EVENT_BY_ID, deckSize, eventsLeft, type AMState } from '@am/engine';
-import { BACK_EVENT, BACK_PLAY, cardImg, eventImg } from './assets';
+import { useEffect, useState } from 'react';
+import { CARD_BY_ID, EVENT_BY_ID, PERSONALITY_BY_ID, deckSize, eventsLeft, type AMState, type PersonalityId } from '@am/engine';
+import { BACK_EVENT, BACK_PERSONALITY, BACK_PLAY, cardImg, eventImg, personalityImg } from './assets';
 
 /** Колоды справа от поля, как на реальном столе: игровая и событий рубашкой вверх, сбросы лицом. */
-export function Decks({ G }: { G: AMState }) {
+export function Decks({ G, personality, flipKey }: { G: AMState; personality: PersonalityId | null; flipKey: string }) {
+  // Личность лежит рубашкой вверх; переворачивается кликом и снова закрывается при смене хода/игрока.
+  const [shown, setShown] = useState(false);
+  useEffect(() => setShown(false), [flipKey]);
   const top = G.discard.at(-1);
   const deck = deckSize(G);
   const events = eventsLeft(G);
@@ -24,6 +28,16 @@ export function Decks({ G }: { G: AMState }) {
         <figure className="deck">
           <img src={eventImg(G.lastEvent)} alt={EVENT_BY_ID[G.lastEvent]?.name} title={EVENT_BY_ID[G.lastEvent]?.name} />
           <figcaption>Событие хода</figcaption>
+        </figure>
+      )}
+      {personality && (
+        <figure className="deck personality-card">
+          <button className={`flip ${shown ? 'shown' : ''}`} onClick={() => setShown(!shown)}
+            title={shown ? 'Скрыть личность' : 'Посмотреть свою личность'}>
+            <img src={shown ? personalityImg(personality) : BACK_PERSONALITY}
+              alt={shown ? PERSONALITY_BY_ID[personality]?.name : 'Ваша личность (скрыта)'} />
+          </button>
+          <figcaption>{shown ? 'Ваша личность' : 'Личность · нажмите'}</figcaption>
         </figure>
       )}
     </aside>
