@@ -1,12 +1,12 @@
 node_modules/
 dist/
 *.log
+*.tsbuildinfo
+.vite/
 
-# Исходные материалы игры (PDF, PSD, xlsx, шрифт) — в git не храним
+# Исходные материалы игры — в git не храним
 source/
-*.pdf
-*.psd
-*.xlsx
-Ankh-Morpork Discworld cardForge/
-Ankh-Morpork Discworld final PDF cards ForPrint/
-FolkardCyr/
+
+# Превью и временные скриншоты
+tools/assets/preview/
+/*.png
