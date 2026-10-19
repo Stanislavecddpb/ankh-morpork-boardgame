@@ -1,5 +1,6 @@
 import path from 'path';
 import serve from 'koa-static';
+import { addPlatformRoutes } from './platform';
 import { FlatFile, Server } from 'boardgame.io/server';
 import { AnkhMorporkGame } from '@am/engine';
 
@@ -17,6 +18,9 @@ const server = Server({
 // Собранный клиент с того же порта → для игры по сети достаточно одного туннеля.
 const CLIENT_DIST = path.resolve(__dirname, '../../client/dist');
 server.app.use(serve(CLIENT_DIST));
+
+// Служебные маршруты платформы Zarya (при заданном PLATFORM_SECRET).
+addPlatformRoutes(server);
 
 server.run(PORT, () => {
   console.log(`Анк-Морпорк: http://localhost:${PORT}  (клиент + сервер на одном порту)`);

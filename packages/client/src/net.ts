@@ -36,6 +36,15 @@ export function loadSeat(matchID: string): Seat | null {
   }
 }
 
+/** Забыть место: его освободили (игрок встал из-за стола на платформе). */
+export function forgetSeat(matchID: string): void {
+  try {
+    localStorage.removeItem(seatKey(matchID));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function saveSeat(matchID: string, seat: Seat): void {
   try {
     localStorage.setItem(seatKey(matchID), JSON.stringify(seat));
