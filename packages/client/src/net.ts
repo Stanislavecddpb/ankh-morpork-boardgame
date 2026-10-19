@@ -59,3 +59,10 @@ export function rememberName(name: string): void {
     /* ignore */
   }
 }
+
+// Платформа Zarya Boardgames открывает игру с ?name=<ник>&embed=1:
+// имя берём из аккаунта платформы, а ссылки «на главную» прячем — навигация у платформы.
+const params = new URLSearchParams(location.search);
+const nameFromUrl = params.get('name')?.trim();
+if (nameFromUrl) rememberName(nameFromUrl.slice(0, 20));
+if (params.has('embed')) document.documentElement.classList.add('embed');
