@@ -2,6 +2,7 @@
 import type { AMState, AreaId, PlayerID } from '../types';
 import { AREA_IDS, areaDef } from '../data/areas';
 import { drawCards } from '../helpers';
+import { deckSize } from '../view';
 import { minionLikeCount, troubleAreas } from '../rules';
 import { ask, cardNames, moveCards, putMinion, say } from './ops';
 import { defineEffects, runEffect, type Effect, type EffectApi } from './run';
@@ -28,7 +29,8 @@ export function districtBlock(G: AMState, pid: PlayerID, area: AreaId): string |
   if (G.prompt || G.offers.length) return 'Сначала ответьте на вопрос';
   switch (area) {
     case 1: case 8: return p.money < 3 ? 'Нужно $3' : p.minionSupply < 1 ? 'Нет слуг в запасе' : null;
-    case 2: return G.deck.length === 0 ? 'Колода пуста' : null;
+    // У клиента колода скрыта (deck пуст), размер — в deckCount.
+    case 2: return deckSize(G) === 0 ? 'Колода пуста' : null;
     case 5: return p.hand.length === 0 ? 'Нет карт в руке' : null;
     case 7: return shadesTargets(G).length === 0 ? 'Некуда положить беспорядок' : null;
     case 10: return p.money < 2 ? 'Нужно $2' : troubleAreas(G).length === 0 ? 'Нет беспорядков' : null;
