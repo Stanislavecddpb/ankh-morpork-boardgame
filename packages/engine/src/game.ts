@@ -8,7 +8,7 @@ import {
   playCard, refillHand, skipSymbol, startTurn,
 } from './turn';
 import { applyManual, eventBack, peekSpare, swapPersonality, takeRandomCard, type ManualAction } from './manual';
-import { allPersonalities, deckOutResult, hasWon } from './victory';
+import { deckOutResult, hasWon, winResult } from './victory';
 import { playerView } from './view';
 import {
   answerForAbsent, answerOffer, answerPrompt, makeApi, mossyLawn, offerLosses, playInterrupt, snapshot, startEvent, startScroll, useDistrict, type Rnd,
@@ -96,7 +96,7 @@ export const AnkhMorporkGame: Game<AMState> = {
           startTurn(G);
           const pid = ctx.currentPlayer;
           if (hasWon(G, pid, ctx.numPlayers)) {
-            G.gameover = { winner: pid, reason: 'personality', personalities: allPersonalities(G) };
+            G.gameover = winResult(G, pid, 'personality');
             log(G, `${nameOf(G, pid)} выполняет условие победы!`);
           } else {
             log(G, `Ход: ${nameOf(G, pid)}`);

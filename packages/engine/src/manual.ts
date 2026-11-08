@@ -3,7 +3,7 @@ import { MAX_DEMONS, MAX_TROLLS } from './types';
 import { AREA_IDS, areaDef } from './data/areas';
 import { CARD_BY_ID, EVENT_BY_ID } from './data/cards';
 import { log, nameOf } from './helpers';
-import { allPersonalities, scoreResult } from './victory';
+import { scoreResult, winResult } from './victory';
 import { troubleEnter, troubleLeave } from './rules';
 
 export type ManualAction =
@@ -226,7 +226,7 @@ export function applyManual(G: AMState, pid: PlayerID, a: ManualAction): string 
     case 'declareEnd': {
       G.gameover = a.winner === null
         ? scoreResult(G)
-        : { winner: a.winner, reason: 'manual', personalities: allPersonalities(G) };
+        : winResult(G, a.winner, 'manual');
       log(G, `${who}: игра окончена ${a.winner === null ? '(подсчёт очков)' : `— победитель ${nameOf(G, a.winner)}`}`);
       return null;
     }
